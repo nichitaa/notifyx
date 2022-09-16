@@ -6,6 +6,8 @@ defmodule DurianWeb.UserController do
 
   action_fallback DurianWeb.FallbackController
 
+  plug Durian.Plugs.RequireToken when action in [:list, :get_user]
+
   def list(conn, _params) do
     users = Auth.list_users()
     success_response(conn, "list.json", %{users: users})
@@ -23,6 +25,25 @@ defmodule DurianWeb.UserController do
     case Auth.get_user(id) do
       nil -> {:error, :not_found}
       user -> success_response(conn, "get_user.json", %{user: user})
+    end
+  end
+
+  def login(conn, _params) do
+    body = conn.body_params
+    %{"email" => email, "password" => password} = body
+    user = Auth.get_user_by_email_and_password(email, password)
+
+    case user do
+      nil ->
+        {:error, :not_found}
+
+      user ->
+        with {:ok, updated_user} <-
+               Auth.update_user_session_token(user) do
+          conn
+          |> put_session(:user_token, updated_user.token)
+          |> success_response("login.json", %{user: updated_user})
+        end
     end
   end
 

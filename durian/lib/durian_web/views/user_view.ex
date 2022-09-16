@@ -29,4 +29,12 @@ defmodule DurianWeb.UserView do
       id: id
     }
   end
+
+  def render("login.json", %{user: %{id: id, token: token}}) do
+    %{
+      success: true,
+      id: id,
+      token: token
+    }
+  end
 end
