@@ -3,6 +3,8 @@ defmodule DurianWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug :fetch_session
+    plug Durian.Plugs.SetUser
   end
 
   scope "/api", DurianWeb do
@@ -11,6 +13,7 @@ defmodule DurianWeb.Router do
     get "/users", UserController, :list
     get "/users/:id", UserController, :get_user
     post "/users", UserController, :register
+    post "/users/login", UserController, :login
   end
 
   # Enables LiveDashboard only for development
