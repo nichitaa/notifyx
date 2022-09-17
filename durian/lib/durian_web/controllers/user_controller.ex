@@ -6,7 +6,7 @@ defmodule DurianWeb.UserController do
 
   action_fallback DurianWeb.FallbackController
 
-  plug Durian.Plugs.RequireToken when action in [:list, :get_user]
+  plug Durian.Plugs.RequireValidToken when action in [:list, :get_user]
 
   def list(conn, _params) do
     users = Auth.list_users()

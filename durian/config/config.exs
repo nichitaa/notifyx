@@ -9,7 +9,8 @@ import Config
 
 config :durian,
   ecto_repos: [Durian.Repo],
-  generators: [binary_id: true]
+  generators: [binary_id: true],
+  auth_header_key: "durian-token"
 
 # Configures the endpoint
 config :durian, DurianWeb.Endpoint,
