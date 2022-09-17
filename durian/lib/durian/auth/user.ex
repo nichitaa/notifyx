@@ -19,7 +19,7 @@ defmodule Durian.Auth.User do
   def changeset(user, attrs) do
     user
     |> cast(attrs, [:email, :hashed_password, :password, :token, :expiry])
-    |> validate_required([:email, :hashed_password, :password, :token, :expiry])
+    |> validate_required([:email, :hashed_password])
   end
 
   @doc false
