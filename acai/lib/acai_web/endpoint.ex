@@ -1,6 +1,10 @@
 defmodule AcaiWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :acai
 
+  socket "/socket", AcaiWeb.NotificationSocket,
+    websocket: true,
+    longpoll: false
+
   @session_options [
     store: :cookie,
     key: "_acai_key",
