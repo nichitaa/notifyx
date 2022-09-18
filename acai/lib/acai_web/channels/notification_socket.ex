@@ -1,7 +1,7 @@
 defmodule AcaiWeb.NotificationSocket do
   use Phoenix.Socket
 
-  channel "room:*", AcaiWeb.RoomChannel
+  channel "notification:*", AcaiWeb.NotificationChannel
 
 
   # Socket params are passed from the client and can
