@@ -19,6 +19,8 @@ defmodule Acai.Application do
     ]
 
     opts = [strategy: :one_for_one, name: Acai.Supervisor]
+    HTTPoison.start()
+    dbg("Starting Acai.Application...")
     Supervisor.start_link(children, opts)
   end
 

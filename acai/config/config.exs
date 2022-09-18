@@ -3,7 +3,8 @@ import Config
 
 config :acai,
   ecto_repos: [Acai.Repo],
-  generators: [binary_id: true]
+  generators: [binary_id: true],
+  auth_service_base_url: "http://localhost:4000/api/users"
 
 # Configures the endpoint
 config :acai, AcaiWeb.Endpoint,

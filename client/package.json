@@ -11,14 +11,27 @@
   "dependencies": {
     "phoenix": "^1.6.11",
     "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+    "react-dom": "^17.0.2",
+    "recoil": "^0.7.5"
   },
   "devDependencies": {
     "@types/phoenix": "^1.5.4",
     "@types/react": "^17.0.2",
     "@types/react-dom": "^17.0.2",
     "@vitejs/plugin-react": "^2.1.0",
+    "prettier": "^2.7.1",
     "typescript": "^4.6.4",
     "vite": "^3.1.0"
+  },
+  "prettier": {
+    "trailingComma": "es5",
+    "tabWidth": 2,
+    "printWidth": 80,
+    "semi": true,
+    "jsxSingleQuote": true,
+    "singleQuote": true,
+    "bracketSpacing": true,
+    "jsxBracketSameLine": false,
+    "arrowParens": "always"
   }
 }

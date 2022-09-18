@@ -9,7 +9,6 @@ config :acai, Acai.Repo,
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: 10
 
-
 config :acai, AcaiWeb.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 4002],
   secret_key_base: "JsDa5C9DV9Ggz3Po1ppE4ttvcNr8Tfgyb4JpxdLg9D6MCX5PKAlryiUcEo9geaF9",
