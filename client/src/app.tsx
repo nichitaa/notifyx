@@ -1,57 +1,13 @@
-import { useEffect, useState } from 'react';
-import { Socket } from 'phoenix';
-import { useRecoilState } from 'recoil';
-import { notificationsAtom } from './recoil/atoms';
-
-const socket = new Socket('ws://localhost:5000/socket', {
-  params: {
-    email: 'email4@gma2il.com',
-    password: '122',
-  },
-});
-const allNotificationsChannel = socket.channel('notification:all', {});
+import { PhxSocketStates, usePhxSocket } from './hooks/use-phx-socket';
+import LoginFields from './components/login-fields';
+import UserNotifications from './components/user-notifications';
 
 const App = () => {
-  const [notifications, setNotifications] = useRecoilState(notificationsAtom);
+  const { status } = usePhxSocket();
 
-  useEffect(() => {
-    socket.connect();
+  if (status === PhxSocketStates.OPEN) return <UserNotifications />;
 
-    allNotificationsChannel.on(
-      'new_notification',
-      ({ body }: { body: string }) => {
-        setNotifications((prev) => [...prev, body]);
-        console.log('[new_notification] recv: ', body);
-      }
-    );
-
-    allNotificationsChannel
-      .join()
-      .receive('ok', (resp) => {
-        console.log('Joined successfully', resp);
-      })
-      .receive('error', (resp) => {
-        console.log('Unable to join', resp);
-      });
-
-    setTimeout(() => {
-      allNotificationsChannel.push('new_notification', {
-        body: 'a new push notification',
-      });
-    }, 1000);
-  }, []);
-
-  const sendNotification = () => {
-    allNotificationsChannel.push('new_notification', {
-      body: 'something dummy',
-    });
-  };
-  return (
-    <>
-      <pre>{JSON.stringify(notifications, null, 2)}</pre>
-      <button onClick={sendNotification}>send</button>
-    </>
-  );
+  return <LoginFields />;
 };
 
 export default App;

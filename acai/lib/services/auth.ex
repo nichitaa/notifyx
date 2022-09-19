@@ -1,6 +1,5 @@
 defmodule Acai.Services.Auth do
   def login_and_get_user(email, password) do
-
     dbg("email: #{email} password: #{password}")
     url = base_url() <> "/login"
     headers = ["Content-Type": "application/json"]
