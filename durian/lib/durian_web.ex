@@ -1,5 +1,4 @@
 defmodule DurianWeb do
-
   def controller do
     quote do
       use Phoenix.Controller, namespace: DurianWeb
