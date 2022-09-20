@@ -8,14 +8,13 @@ defmodule AcaiWeb.Endpoint do
   @session_options [
     store: :cookie,
     key: "_acai_key",
-    signing_salt: "WfPi5s3B"
+    signing_salt: "RMUwdUPp"
   ]
 
   socket "/live", Phoenix.LiveView.Socket, websocket: [connect_info: [session: @session_options]]
 
   if code_reloading? do
     plug Phoenix.CodeReloader
-    plug Phoenix.Ecto.CheckRepoStatus, otp_app: :acai
   end
 
   plug Phoenix.LiveDashboard.RequestLogger,

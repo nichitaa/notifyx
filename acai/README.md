@@ -1,3 +1,3 @@
 # Acai
 
-app that will run on different nodes and act as a distributed gateway & broadcast the notifications 
+Gateway build on top of Phoenix Channels that will broadcast notifications and act as a Gateway, connecting user requests with dedicated services

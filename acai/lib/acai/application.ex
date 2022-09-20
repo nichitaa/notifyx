@@ -6,16 +6,12 @@ defmodule Acai.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      # Start the Ecto repository
-      Acai.Repo,
       # Start the Telemetry supervisor
       AcaiWeb.Telemetry,
       # Start the PubSub system
       {Phoenix.PubSub, name: Acai.PubSub},
       # Start the Endpoint (http/https)
       AcaiWeb.Endpoint
-      # Start a worker by calling: Acai.Worker.start_link(arg)
-      # {Acai.Worker, arg}
     ]
 
     opts = [strategy: :one_for_one, name: Acai.Supervisor]

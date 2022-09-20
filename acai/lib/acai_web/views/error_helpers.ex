@@ -1,4 +1,5 @@
 defmodule AcaiWeb.ErrorHelpers do
+
   @doc """
   Translates an error message.
   """
