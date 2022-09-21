@@ -1,18 +1,19 @@
-defmodule DurianWeb do
+defmodule AcaiWeb do
+
   def controller do
     quote do
-      use Phoenix.Controller, namespace: DurianWeb
+      use Phoenix.Controller, namespace: AcaiWeb
 
       import Plug.Conn
-      alias DurianWeb.Router.Helpers, as: Routes
+      alias AcaiWeb.Router.Helpers, as: Routes
     end
   end
 
   def view do
     quote do
       use Phoenix.View,
-        root: "lib/durian_web/templates",
-        namespace: DurianWeb
+        root: "lib/acai_web/templates",
+        namespace: AcaiWeb
 
       # Import convenience functions from controllers
       import Phoenix.Controller,
@@ -43,14 +44,11 @@ defmodule DurianWeb do
       # Import basic rendering functionality (render, render_layout, etc)
       import Phoenix.View
 
-      import DurianWeb.ErrorHelpers
-      alias DurianWeb.Router.Helpers, as: Routes
+      import AcaiWeb.ErrorHelpers
+      alias AcaiWeb.Router.Helpers, as: Routes
     end
   end
 
-  @doc """
-  When used, dispatch to the appropriate controller/view/etc.
-  """
   defmacro __using__(which) when is_atom(which) do
     apply(__MODULE__, which, [])
   end
