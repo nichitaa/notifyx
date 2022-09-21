@@ -7,6 +7,9 @@ defmodule KiwiWeb.Router do
 
   scope "/api", KiwiWeb do
     pipe_through :api
+
+    resources "/topics", TopicController, except: [:new, :edit]
+    resources "/notifications", NotificationController, except: [:new, :edit]
   end
 
   if Mix.env() in [:dev, :test] do
