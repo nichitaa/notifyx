@@ -1,0 +1,2 @@
+defmodule Acai do
+end

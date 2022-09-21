@@ -17,7 +17,16 @@ config :durian, DurianWeb.Endpoint,
   url: [host: "localhost"],
   render_errors: [view: DurianWeb.ErrorView, accepts: ~w(json), layout: false],
   pubsub_server: Durian.PubSub,
-  live_view: [signing_salt: "u9TQM1zv"]
+  live_view: [signing_salt: "u9TQM1zv"],
+  # configuring Cowboy2Adapter: https://hexdocs.pm/phoenix/Phoenix.Endpoint.Cowboy2Adapter.html
+  http: [
+    transport_options: [
+      # => increase for prod (I don't want to see that many processes in :observer.start)
+      num_acceptors: 2,
+      # => default
+      max_connections: 16_384
+    ]
+  ]
 
 # Configures Elixir's Logger
 config :logger, :console,
