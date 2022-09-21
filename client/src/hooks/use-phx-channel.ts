@@ -16,7 +16,7 @@ export const usePhxChannel = <S, A>(
   >(() => console.log('must join a channel before broadcasting'));
 
   useEffect(() => {
-    const channel = socket.channel(channelTopic, {});
+    const channel = socket!.channel(channelTopic, {});
 
     channel.onMessage = (event: string, payload: any, ref) => {
       console.log({ event, payload, ref });

@@ -1,9 +1,5 @@
 import { atom } from 'recoil';
-
-export const notificationsAtom = atom<string[]>({
-  key: 'notificationsAtom',
-  default: [],
-});
+import { Socket } from 'phoenix';
 
 export const userCredentialsAtom = atom<{ email: string; password: string }>({
   key: 'userCredentialsAtom',
@@ -11,4 +7,10 @@ export const userCredentialsAtom = atom<{ email: string; password: string }>({
     email: 'first@gmail.com',
     password: '123',
   },
+});
+
+export const socketAtom = atom<Socket | undefined>({
+  dangerouslyAllowMutability: true,
+  key: 'socketAtom',
+  default: undefined,
 });

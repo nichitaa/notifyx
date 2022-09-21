@@ -11,11 +11,25 @@ import {
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { FC } from 'react';
+import { Socket } from 'phoenix';
 
 const LoginFields = () => {
   const [credentials, setCredentials] = useRecoilState(userCredentialsAtom);
+  const { status, connect } = usePhxSocket();
 
-  const { connect, status } = usePhxSocket();
+  const handleConnect = () => {
+    const socket = new Socket('ws://localhost:5000/socket', {
+      params: credentials,
+    });
+    connect(socket);
+  };
+
+  const handleChange = (field: 'password' | 'email', value: string) => {
+    setCredentials((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
 
   return (
     <StyledLoginBox>
@@ -25,29 +39,19 @@ const LoginFields = () => {
         size={'small'}
         label='email'
         value={credentials.email}
-        onChange={(event) =>
-          setCredentials((prev) => ({
-            ...prev,
-            email: event.target.value,
-          }))
-        }
+        onChange={(event) => handleChange('email', event.target.value)}
       />
       <TextField
         required
         size={'small'}
         label='password'
         value={credentials.password}
-        onChange={(event) =>
-          setCredentials((prev) => ({
-            ...prev,
-            password: event.target.value,
-          }))
-        }
+        onChange={(event) => handleChange('password', event.target.value)}
       />
       <LoadingButton
         variant={'contained'}
         loading={status === PhxSocketStates.CONNECTING}
-        onClick={() => connect(credentials)}
+        onClick={handleConnect}
       >
         <code>connect</code>
       </LoadingButton>

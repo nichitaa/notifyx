@@ -1,7 +1,7 @@
+import { useCallback, useEffect, useState } from 'react';
+import { useRecoilState } from 'recoil';
+import { socketAtom } from '../recoil/atoms';
 import { Socket } from 'phoenix';
-import { useEffect, useState } from 'react';
-
-const socket = new Socket('ws://localhost:5000/socket', {});
 
 export enum PhxSocketStates {
   UNINSTANTIATED = 'UNINSTANTIATED',
@@ -12,32 +12,34 @@ export enum PhxSocketStates {
 }
 
 export const usePhxSocket = () => {
+  const [socket, setSocket] = useRecoilState(socketAtom);
   const [status, setStatus] = useState<PhxSocketStates>(
     PhxSocketStates.UNINSTANTIATED
   );
 
   useEffect(() => {
-    socket.onOpen(() => setStatus(PhxSocketStates.OPEN));
-    socket.onClose(() => {
+    socket?.onOpen(() => setStatus(PhxSocketStates.OPEN));
+    socket?.onClose(() => {
       setStatus(PhxSocketStates.CLOSING);
       disconnect();
     });
-    socket.onError(() => setStatus(PhxSocketStates.CLOSED));
+    socket?.onError(() => setStatus(PhxSocketStates.CLOSED));
+  }, [socket]);
+
+  const connect = useCallback((socket: Socket) => {
+    setStatus(PhxSocketStates.CONNECTING);
+    socket.connect();
+    setSocket(socket);
   }, []);
 
-  const connect = (params: { email: string; password: string }) => {
-    setStatus(PhxSocketStates.CONNECTING);
-    socket.connect(params);
-  };
-
-  const disconnect = () => {
-    socket.disconnect();
-  };
+  const disconnect = useCallback(() => {
+    socket?.disconnect();
+  }, [socket]);
 
   return {
+    socket,
     connect,
     status,
     disconnect,
-    socket,
   };
 };
