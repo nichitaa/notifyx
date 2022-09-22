@@ -2,6 +2,7 @@ defmodule DurianWeb.UserController do
   use DurianWeb, :controller
 
   alias Durian.Auth
+  alias Durian.Cache
   # alias Durian.Auth.User
 
   action_fallback DurianWeb.FallbackController
@@ -9,22 +10,38 @@ defmodule DurianWeb.UserController do
   plug Durian.Plugs.RequireValidToken when action in [:list, :get_user, :logout]
 
   def list(conn, _params) do
-    users = Auth.list_users()
-    success_response(conn, "list.json", %{users: users})
+    with {:ok, cached_users} <- Cache.get_users_list() do
+      success_response(conn, "list.json", %{users: cached_users})
+    else
+      {:not_in_cache} ->
+        users = Auth.list_users()
+        Cache.add_users_list(users)
+        success_response(conn, "list.json", %{users: users})
+    end
   end
 
   def register(conn, _params) do
     body = conn.body_params
 
     with {:ok, user} <- Auth.register(body) do
+      Cache.add_user(user)
       success_response(conn, "register.json", %{id: user.id}, :created)
     end
   end
 
   def get_user(conn, %{"id" => id}) do
-    case Auth.get_user(id) do
-      nil -> {:error, :not_found}
-      user -> success_response(conn, "get_user.json", %{user: user})
+    with {:ok, cached_user} <- Cache.get_user(id) do
+      success_response(conn, "get_user.json", %{user: cached_user})
+    else
+      {:not_in_cache} ->
+        case Auth.get_user(id) do
+          nil ->
+            {:error, :not_found}
+
+          user ->
+            Cache.add_user(user)
+            success_response(conn, "get_user.json", %{user: user})
+        end
     end
   end
 
@@ -44,7 +61,7 @@ defmodule DurianWeb.UserController do
             |> success_response("login.json", %{user: updated_user})
           end
 
-        token ->
+        _token ->
           success_response(conn, "login.json", %{user: user})
       end
     else
