@@ -7,7 +7,7 @@ defmodule DurianWeb.UserController do
 
   action_fallback DurianWeb.FallbackController
 
-  plug Durian.Plugs.RequireValidToken when action in [:list, :get_user, :logout]
+  plug Durian.Plugs.RequireValidToken when action in [:list, :get_user, :logout, :get_self]
 
   def list(conn, _params) do
     users =
@@ -50,6 +50,11 @@ defmodule DurianWeb.UserController do
             success_response(conn, "get_user.json", %{user: user})
         end
     end
+  end
+
+  def get_self(conn, _params) do
+    user = conn.assigns[:user]
+    success_response(conn, "get_user.json", %{user: user})
   end
 
   def login(conn, _params) do

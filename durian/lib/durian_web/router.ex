@@ -12,6 +12,7 @@ defmodule DurianWeb.Router do
 
     get "/noop", UserController, :noop
     get "/users", UserController, :list
+    get "/users/self", UserController, :get_self
     get "/users/:id", UserController, :get_user
     post "/users", UserController, :register
     post "/users/login", UserController, :login
