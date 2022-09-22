@@ -37,4 +37,12 @@ defmodule DurianWeb.UserView do
       token: token
     }
   end
+
+  def render("logout.json", %{user: %{id: id}}) do
+    %{
+      success: true,
+      id: id,
+      message: "successfully logout"
+    }
+  end
 end

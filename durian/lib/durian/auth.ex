@@ -33,10 +33,14 @@ defmodule Durian.Auth do
     token = :crypto.strong_rand_bytes(@rand_size)
     token = Base.url_encode64(token)
 
-    # TODO: add validation & expiry
-
     user
     |> User.changeset(%{token: token})
+    |> Repo.update()
+  end
+
+  def delete_user_session_token(user) do
+    user
+    |> User.changeset(%{token: nil})
     |> Repo.update()
   end
 end

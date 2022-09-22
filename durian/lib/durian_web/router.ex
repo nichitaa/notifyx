@@ -14,6 +14,8 @@ defmodule DurianWeb.Router do
     get "/users/:id", UserController, :get_user
     post "/users", UserController, :register
     post "/users/login", UserController, :login
+    delete "/users/logout", UserController, :logout
+
   end
 
   # Enables LiveDashboard only for development

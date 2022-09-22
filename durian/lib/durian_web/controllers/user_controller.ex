@@ -6,7 +6,7 @@ defmodule DurianWeb.UserController do
 
   action_fallback DurianWeb.FallbackController
 
-  plug Durian.Plugs.RequireValidToken when action in [:list, :get_user]
+  plug Durian.Plugs.RequireValidToken when action in [:list, :get_user, :logout]
 
   def list(conn, _params) do
     users = Auth.list_users()
@@ -31,19 +31,36 @@ defmodule DurianWeb.UserController do
   def login(conn, _params) do
     body = conn.body_params
     %{"email" => email, "password" => password} = body
-    user = Auth.get_user_by_email_and_password(email, password)
 
-    case user do
-      nil ->
-        {:error, :not_found}
+    found_user = Auth.get_user_by_email_and_password(email, password)
 
-      user ->
-        with {:ok, updated_user} <-
-               Auth.update_user_session_token(user) do
-          conn
-          |> put_session(:user_token, updated_user.token)
-          |> success_response("login.json", %{user: updated_user})
-        end
+    with user when not is_nil(user) <- found_user do
+      case user.token do
+        nil ->
+          with {:ok, updated_user} <-
+                 Auth.update_user_session_token(user) do
+            conn
+            |> put_session(:user_token, updated_user.token)
+            |> success_response("login.json", %{user: updated_user})
+          end
+
+        token ->
+          success_response(conn, "login.json", %{user: user})
+      end
+    else
+      nil -> {:error, :not_found}
+    end
+  end
+
+  def logout(conn, _params) do
+    user = conn.assigns[:user]
+
+    with {:ok, updated_user} <-
+           Auth.delete_user_session_token(user) do
+      conn
+      |> delete_session(:user_token)
+      |> delete_session(:user)
+      |> success_response("logout.json", %{user: updated_user})
     end
   end
 
