@@ -10,14 +10,21 @@ defmodule DurianWeb.UserController do
   plug Durian.Plugs.RequireValidToken when action in [:list, :get_user, :logout]
 
   def list(conn, _params) do
-    with {:ok, cached_users} <- Cache.get_users_list() do
-      success_response(conn, "list.json", %{users: cached_users})
-    else
-      {:not_in_cache} ->
-        users = Auth.list_users()
-        Cache.add_users_list(users)
-        success_response(conn, "list.json", %{users: users})
-    end
+    users =
+      case Cache.get_users_list() do
+        {:not_in_cache} ->
+          users = Auth.list_users()
+          Cache.add_users_list(users)
+          users
+
+        {:ok, users} ->
+          users
+
+        unhandled ->
+          raise "Error: unhandled response #{inspect(unhandled)}"
+      end
+
+    success_response(conn, "list.json", %{users: users})
   end
 
   def register(conn, _params) do
@@ -56,13 +63,19 @@ defmodule DurianWeb.UserController do
         nil ->
           with {:ok, updated_user} <-
                  Auth.update_user_session_token(user) do
+            Cache.add_user_with_token_as_key(updated_user)
+
             conn
             |> put_session(:user_token, updated_user.token)
             |> success_response("login.json", %{user: updated_user})
           end
 
-        _token ->
-          success_response(conn, "login.json", %{user: user})
+        token ->
+          Cache.add_user_with_token_as_key(user)
+
+          conn
+          |> put_session(:user_token, token)
+          |> success_response("login.json", %{user: user})
       end
     else
       nil -> {:error, :not_found}
@@ -74,11 +87,21 @@ defmodule DurianWeb.UserController do
 
     with {:ok, updated_user} <-
            Auth.delete_user_session_token(user) do
+      Cache.delete_user_by_token(user.token)
+
       conn
       |> delete_session(:user_token)
       |> delete_session(:user)
       |> success_response("logout.json", %{user: updated_user})
     end
+  end
+
+  # To test minimum Phoenix latency request
+  def noop(conn, _params) do
+    conn
+    |> put_resp_content_type("application/json")
+    |> put_status(200)
+    |> json(%{success: true})
   end
 
   ## Privates 
