@@ -13,7 +13,6 @@ defmodule KiwiWeb.Router do
     get "/topics/:id", TopicController, :get_by_id
     post "/topics", TopicController, :create
     post "/topics/:id/status", TopicController, :update_status
-    # resources "/notifications", NotificationController, except: [:new, :edit]
   end
 
   if Mix.env() in [:dev, :test] do
