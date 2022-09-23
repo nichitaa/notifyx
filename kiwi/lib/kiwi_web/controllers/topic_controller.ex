@@ -34,6 +34,7 @@ defmodule KiwiWeb.TopicController do
 
     if Persist.is_user_topic(topic, user) do
       with {:ok, %Topic{} = topic} <- Persist.update_status(topic, %{"status" => new_status}) do
+        Cache.update_topic(topic)
         ControllerUtils.handle_json_view(conn, "topic.json", %{topic: topic})
       end
     else

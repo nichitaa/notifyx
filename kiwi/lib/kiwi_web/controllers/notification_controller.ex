@@ -15,7 +15,7 @@ defmodule KiwiWeb.NotificationController do
     with {:ok, %Notification{} = notification} <- Persist.create_notification(notification_params) do
       conn
       |> put_status(:created)
-      |> put_resp_header("location", Routes.notification_path(conn, :show, notification))
+      # |> put_resp_header("location", Routes.notification_path(conn, :show, notification))
       |> render("show.json", notification: notification)
     end
   end
