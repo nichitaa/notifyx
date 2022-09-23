@@ -4,10 +4,10 @@ defmodule Kiwi.Repo.Migrations.CreateTopics do
   def change do
     create table(:topics, primary_key: false) do
       add :id, :binary_id, primary_key: true
-      add :name, :string
-      add :created_by, :binary_id
+      add :name, :string, null: false
+      add :created_by, :binary_id, null: false
       add :longevity, :integer
-      add :status, :string
+      add :status, :string, null: false
 
       timestamps()
     end
