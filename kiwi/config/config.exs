@@ -2,7 +2,20 @@ import Config
 
 config :kiwi,
   ecto_repos: [Kiwi.Repo],
-  generators: [binary_id: true]
+  generators: [binary_id: true],
+  auth_service_base_url: "http://localhost:4000/api/users"
+
+config :kiwi, Kiwi.Cache,
+  # GC interval for pushing new generation: 12 hrs
+  gc_interval: :timer.hours(12),
+  # Max 1 million entries in cache
+  max_size: 1_000_000,
+  # Max 1 GB of memory
+  allocated_memory: 1_000_000_000,
+  # GC min timeout: 10 sec
+  gc_cleanup_min_timeout: :timer.seconds(10),
+  # GC max timeout: 10 min
+  gc_cleanup_max_timeout: :timer.minutes(10)
 
 # Configures the endpoint
 config :kiwi, KiwiWeb.Endpoint,

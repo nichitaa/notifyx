@@ -6,6 +6,8 @@ defmodule Kiwi.Application do
   @impl true
   def start(_type, _args) do
     children = [
+      # Start the Cache
+      Kiwi.Cache,
       # Start the Ecto repository
       Kiwi.Repo,
       # Start the Telemetry supervisor
@@ -17,7 +19,8 @@ defmodule Kiwi.Application do
       # Start a worker by calling: Kiwi.Worker.start_link(arg)
       # {Kiwi.Worker, arg}
     ]
-
+    HTTPoison.start()
+    dbg("Starting Kiwi.Application ...")
     opts = [strategy: :one_for_one, name: Kiwi.Supervisor]
     Supervisor.start_link(children, opts)
   end

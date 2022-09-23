@@ -3,13 +3,17 @@ defmodule KiwiWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug Kiwi.Plugs.Authenticate
   end
 
   scope "/api", KiwiWeb do
     pipe_through :api
 
-    resources "/topics", TopicController, except: [:new, :edit]
-    resources "/notifications", NotificationController, except: [:new, :edit]
+    get "/topics", TopicController, :list
+    get "/topics/:id", TopicController, :get_by_id
+    post "/topics", TopicController, :create
+    post "/topics/:id/status", TopicController, :update_status
+    # resources "/notifications", NotificationController, except: [:new, :edit]
   end
 
   if Mix.env() in [:dev, :test] do

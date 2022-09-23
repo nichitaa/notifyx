@@ -1,11 +1,12 @@
 defmodule Kiwi.Persist.Topic do
   use Ecto.Schema
   import Ecto.Changeset
+  use Accessible
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
   schema "topics" do
-    field :created_by, :integer
+    field :created_by, :binary_id
     field :longevity, :integer
     field :name, :string
     field :status, Ecto.Enum, values: [:active, :inactive]

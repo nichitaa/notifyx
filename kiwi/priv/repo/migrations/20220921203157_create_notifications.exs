@@ -5,9 +5,9 @@ defmodule Kiwi.Repo.Migrations.CreateNotifications do
     create table(:notifications, primary_key: false) do
       add :id, :binary_id, primary_key: true
       add :message, :string
-      add :from, :integer
-      add :seen_by, {:array, :integer}
-      add :to, {:array, :integer}
+      add :from, :binary_id
+      add :seen_by, {:array, :binary_id}
+      add :to, {:array, :binary_id}
       add :topic_id, references(:topics, on_delete: :nothing, type: :binary_id)
 
       timestamps()

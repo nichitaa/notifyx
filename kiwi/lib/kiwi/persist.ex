@@ -5,11 +5,15 @@ defmodule Kiwi.Persist do
   alias Kiwi.Persist.Topic
   alias Kiwi.Persist.Notification
 
+  ## Topics
+
   def list_topics do
     Repo.all(Topic)
   end
 
   def get_topic!(id), do: Repo.get!(Topic, id)
+
+  def get_topic(id), do: Repo.get(Topic, id)
 
   def create_topic(attrs \\ %{}) do
     %Topic{}
@@ -17,9 +21,13 @@ defmodule Kiwi.Persist do
     |> Repo.insert()
   end
 
-  def update_topic(%Topic{} = topic, attrs) do
+  def is_user_topic(topic, %{id: user_id}) do
+    topic.created_by === user_id
+  end
+
+  def update_status(%Topic{} = topic, %{"status" => status}) do
     topic
-    |> Topic.changeset(attrs)
+    |> Topic.changeset(%{"status" => status})
     |> Repo.update()
   end
 

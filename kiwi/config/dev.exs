@@ -15,7 +15,7 @@ config :kiwi, KiwiWeb.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 9000],
   check_origin: false,
   code_reloader: true,
-  debug_errors: true,
+  debug_errors: false,
   secret_key_base: "VwBcIb3CvvGDe/EF4LLa4BZU1eR8shahC7gx57woZmuiYIdKnxH+S4sXUacrEmuY",
   watchers: []
 

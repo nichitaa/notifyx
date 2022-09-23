@@ -1,43 +1,43 @@
 defmodule KiwiWeb.TopicController do
   use KiwiWeb, :controller
 
+  alias Kiwi.Cache
   alias Kiwi.Persist
   alias Kiwi.Persist.Topic
+  alias KiwiWeb.ControllerUtils
 
   action_fallback KiwiWeb.FallbackController
 
-  def index(conn, _params) do
-    topics = Persist.list_topics()
-    render(conn, "index.json", topics: topics)
+  def list(conn, params) do
+    topics = Cache.get_topics_list_from_cache_or_db()
+    ControllerUtils.handle_json_view(conn, "topics.json", %{topics: topics})
   end
 
-  def create(conn, %{"topic" => topic_params}) do
+  def create(conn, params) do
+    user = conn.assigns[:user]
+    topic_params = Map.put(params, "created_by", user.id)
+
     with {:ok, %Topic{} = topic} <- Persist.create_topic(topic_params) do
-      conn
-      |> put_status(:created)
-      |> put_resp_header("location", Routes.topic_path(conn, :show, topic))
-      |> render("show.json", topic: topic)
+      Cache.add_topic(topic)
+      ControllerUtils.handle_json_view(conn, "topic.json", %{topic: topic})
     end
   end
 
-  def show(conn, %{"id" => id}) do
-    topic = Persist.get_topic!(id)
-    render(conn, "show.json", topic: topic)
+  def get_by_id(conn, %{"id" => id}) do
+    topic = Cache.get_topic_from_cache_or_db!(id)
+    ControllerUtils.handle_json_view(conn, "topic.json", %{topic: topic})
   end
 
-  def update(conn, %{"id" => id, "topic" => topic_params}) do
-    topic = Persist.get_topic!(id)
+  def update_status(conn, %{"id" => id, "status" => new_status}) do
+    topic = Cache.get_topic_from_cache_or_db!(id)
+    user = conn.assigns[:user]
 
-    with {:ok, %Topic{} = topic} <- Persist.update_topic(topic, topic_params) do
-      render(conn, "show.json", topic: topic)
-    end
-  end
-
-  def delete(conn, %{"id" => id}) do
-    topic = Persist.get_topic!(id)
-
-    with {:ok, %Topic{}} <- Persist.delete_topic(topic) do
-      send_resp(conn, :no_content, "")
+    if Persist.is_user_topic(topic, user) do
+      with {:ok, %Topic{} = topic} <- Persist.update_status(topic, %{"status" => new_status}) do
+        ControllerUtils.handle_json_view(conn, "topic.json", %{topic: topic})
+      end
+    else
+      ControllerUtils.handle_json_view(conn, "not_topic_owner.json", :forbidden)
     end
   end
 end

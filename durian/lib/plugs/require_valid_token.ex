@@ -1,7 +1,5 @@
 defmodule Durian.Plugs.RequireValidToken do
   import Plug.Conn
-  alias Durian.Repo
-  alias Durian.Auth.User
   alias Durian.PlugUtils
   alias Durian.Cache
 
