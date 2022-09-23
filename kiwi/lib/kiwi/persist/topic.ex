@@ -3,6 +3,8 @@ defmodule Kiwi.Persist.Topic do
   import Ecto.Changeset
   use Accessible
 
+  alias Kiwi.Persist.Notification
+
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
   schema "topics" do
@@ -10,6 +12,8 @@ defmodule Kiwi.Persist.Topic do
     field :longevity, :integer
     field :name, :string
     field :status, Ecto.Enum, values: [:active, :inactive]
+
+    has_many(:notifications, Notification)
 
     timestamps()
   end
