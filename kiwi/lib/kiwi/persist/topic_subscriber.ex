@@ -6,6 +6,7 @@ defmodule Kiwi.Persist.TopicSubscriber do
   alias Kiwi.Persist.Topic
 
   @primary_key false
+  @foreign_key_type :binary_id
   schema "topic_subscribers" do
     field :user_id, :binary_id
 

@@ -26,26 +26,35 @@ defmodule Seeds do
 
     dbg(topic)
 
-    {:ok, notification} =
-      Notification.changeset(%Notification{}, %{
-        from_user_id: user_id1,
-        message: "message text",
-        topic_id: topic.id
+    {:ok, sub} =
+      TopicSubscriber.changeset(%TopicSubscriber{}, %{
+        topic_id: topic.id,
+        user_id: user_id2
       })
       |> Repo.insert()
 
-    dbg(notification)
+    dbg(sub)
 
-    user_notification =
-      UserNotification.changeset(%UserNotification{}, %{
-        to_user_id: user_id2,
-        notification_id: notification.id,
-        status: "sent"
-      })
-      |> Repo.insert()
-
-    dbg(user_notification)
+    #    {:ok, notification} =
+    #      Notification.changeset(%Notification{}, %{
+    #        from_user_id: user_id1,
+    #        message: "message text",
+    #        topic_id: topic.id
+    #      })
+    #      |> Repo.insert()
+    #
+    #    dbg(notification)
+    #
+    #    user_notification =
+    #      UserNotification.changeset(%UserNotification{}, %{
+    #        to_user_id: user_id2,
+    #        notification_id: notification.id,
+    #        status: "sent"
+    #      })
+    #      |> Repo.insert()
+    #
+    #    dbg(user_notification)
   end
 end
 
-#Seeds.run()
+ Seeds.run()

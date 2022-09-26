@@ -4,6 +4,8 @@ defmodule Kiwi.Persist do
 
   alias Kiwi.Persist.Topic
   alias Kiwi.Persist.Notification
+  alias Kiwi.Persist.TopicSubscriber
+  alias Kiwi.Persist.UserNotification
 
   ## Topics
 
@@ -35,7 +37,37 @@ defmodule Kiwi.Persist do
     Repo.delete(topic)
   end
 
-  def change_topic(%Topic{} = topic, attrs \\ %{}) do
-    Topic.changeset(topic, attrs)
+  ## Topic subscribers
+
+  def subscribe(attrs \\ %{}) do
+    %TopicSubscriber{}
+    |> TopicSubscriber.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  def list_topic_subscribers(topic_id) do
+    TopicSubscriber
+    |> Ecto.Query.where(topic_id: ^topic_id)
+    |> Repo.all()
+  end
+
+  def delete_topic_subscriber(user_id, topic_id) do
+    TopicSubscriber
+    |> where([sub], sub.user_id == ^user_id and sub.topic_id == ^topic_id)
+    |> Repo.delete_all()
+  end
+
+  ## Notifications
+
+  def create_notification(attrs \\ %{}) do
+    %Notification{}
+    |> Notification.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  def create_users_notification(attrs \\ %{}) do
+    %UserNotification{}
+    |> UserNotification.changeset(attrs)
+    |> Repo.insert()
   end
 end

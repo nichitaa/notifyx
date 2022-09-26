@@ -9,10 +9,18 @@ defmodule KiwiWeb.Router do
   scope "/api", KiwiWeb do
     pipe_through :api
 
+    # Topics 
+
     get "/topics", TopicController, :list
     get "/topics/:id", TopicController, :get_by_id
     post "/topics", TopicController, :create
     post "/topics/:id/status", TopicController, :update_status
+
+    # Subscribers
+    post "/subscribers/:topic_id", TopicSubscriberController, :subscribe
+    get "/subscribers/:topic_id", TopicSubscriberController, :list_subscribers
+    delete "/subscribers/:topic_id", TopicSubscriberController, :unsubscribe
+
   end
 
   if Mix.env() in [:dev, :test] do
