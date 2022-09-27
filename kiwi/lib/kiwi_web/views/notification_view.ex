@@ -11,6 +11,10 @@ defmodule KiwiWeb.NotificationView do
     error_response("unable to create notification")
   end
 
+  def render("user_notifications.json", %{notifications: notifications}) do
+    success_response(notifications)
+  end
+
   def render("notification_dto.json", %{notification: notification}) do
     %{
       id: notification.id,

@@ -29,4 +29,13 @@ defmodule KiwiWeb.NotificationController do
         ControllerUtils.handle_json_view(conn, "create_notification_error.json")
     end
   end
+
+  def get_own_notifications(conn, params) do
+    user_id = conn.assigns[:user].id
+    notifications = Persist.get_user_notifications(user_id, conn.query_params)
+
+    ControllerUtils.handle_json_view(conn, "user_notifications.json", %{
+      notifications: notifications
+    })
+  end
 end

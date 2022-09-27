@@ -139,9 +139,40 @@ defmodule Kiwi.Persist do
     end
   end
 
-  def create_users_notification(attrs \\ %{}) do
-    %UserNotification{}
-    |> UserNotification.changeset(attrs)
-    |> Repo.insert()
+  @doc """
+  Very useful [dynamic filters](https://hexdocs.pm/ecto/dynamic-queries.html#content)
+  """
+  def get_user_notifications(user_id, filters) do
+    dynamic_filters =
+      Enum.reduce(filters, dynamic(true), fn current, dynamic_acc ->
+        case current do
+          {"topic_name", value} ->
+            dynamic([topic: t], ^dynamic_acc and t.name == ^value)
+
+          {"from_user_id", value} ->
+            dynamic([notification: n], ^dynamic_acc and n.from_user_id == ^value)
+
+          {"status", value} ->
+            dynamic([un], ^dynamic_acc and un.status == ^value)
+
+          {_, _} ->
+            dynamic_acc
+        end
+      end)
+
+    UserNotification
+    |> where([un], un.to_user_id == ^user_id)
+    |> join(:left, [un], n in Notification, on: un.notification_id == n.id, as: :notification)
+    |> join(:left, [un, n], t in Topic, on: n.topic_id == t.id, as: :topic)
+    |> where(^dynamic_filters)
+    |> select([un, n, t], %{
+      notification_id: n.id,
+      message: n.message,
+      topic_name: t.name,
+      from_user_id: n.from_user_id,
+      status: un.status,
+      inserted_at: n.inserted_at
+    })
+    |> Repo.all()
   end
 end
