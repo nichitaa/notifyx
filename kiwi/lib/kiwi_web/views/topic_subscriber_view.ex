@@ -1,14 +1,13 @@
 defmodule KiwiWeb.TopicSubscriberView do
   use KiwiWeb, :view
-  alias KiwiWeb.TopicSubscriberView
 
   def render("subscriber.json", %{subscriber: subscriber}) do
-    data = render_one(subscriber, TopicSubscriberView, "subscriber_dto.json", as: :subscriber)
+    data = render_one(subscriber, __MODULE__, "subscriber_dto.json", as: :subscriber)
     success_response(data)
   end
 
   def render("subscribers.json", %{subscribers: subscribers}) do
-    data = render_many(subscribers, TopicSubscriberView, "subscriber_dto.json")
+    data = render_many(subscribers, __MODULE__, "subscriber_dto.json", as: :subscriber)
     success_response(data)
   end
 

@@ -1,14 +1,13 @@
 defmodule KiwiWeb.TopicView do
   use KiwiWeb, :view
-  alias KiwiWeb.TopicView
 
   def render("topics.json", %{topics: topics}) do
-    data = render_many(topics, TopicView, "topic_dto.json")
+    data = render_many(topics, __MODULE__, "topic_dto.json")
     success_response(data)
   end
 
   def render("topic.json", %{topic: topic}) do
-    data = render_one(topic, TopicView, "topic_dto.json")
+    data = render_one(topic, __MODULE__, "topic_dto.json")
     success_response(data)
   end
 

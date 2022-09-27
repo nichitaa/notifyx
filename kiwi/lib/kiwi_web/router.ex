@@ -9,8 +9,7 @@ defmodule KiwiWeb.Router do
   scope "/api", KiwiWeb do
     pipe_through :api
 
-    # Topics 
-
+    # Topics
     get "/topics", TopicController, :list
     get "/topics/:id", TopicController, :get_by_id
     post "/topics", TopicController, :create
@@ -21,6 +20,8 @@ defmodule KiwiWeb.Router do
     get "/subscribers/:topic_id", TopicSubscriberController, :list_subscribers
     delete "/subscribers/:topic_id", TopicSubscriberController, :unsubscribe
 
+    # Notifications
+    post "/notifications", NotificationController, :create
   end
 
   if Mix.env() in [:dev, :test] do
