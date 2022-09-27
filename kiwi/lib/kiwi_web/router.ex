@@ -23,6 +23,7 @@ defmodule KiwiWeb.Router do
     # Notifications
     post "/notifications", NotificationController, :create
     get "/notifications", NotificationController, :get_own_notifications
+    post "/notifications/:id/seen", NotificationController, :update_status_to_seen
   end
 
   if Mix.env() in [:dev, :test] do

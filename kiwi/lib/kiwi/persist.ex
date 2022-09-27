@@ -27,7 +27,7 @@ defmodule Kiwi.Persist do
     topic.created_by === user_id
   end
 
-  def update_status(%Topic{} = topic, %{"status" => status}) do
+  def update_topic_status(%Topic{} = topic, %{"status" => status}) do
     topic
     |> Topic.changeset(%{"status" => status})
     |> Repo.update()
@@ -116,11 +116,11 @@ defmodule Kiwi.Persist do
       {:ok, %{insert_all: {count, nil}, notification: notification}} ->
         {:ok, notification, count}
 
-      {:error, _, _, _} ->
-        {:error, "could not process transaction"}
+      {:error, operation, value, _} ->
+        {:error, "error at operation: `#{Atom.to_string(operation)}`, value: `#{Atom.to_string(value)}`"}
 
       {:ok, _} ->
-        {:ok, "successfully processed transaction"}
+        {:ok, "successfully processed transaction (unhandled case though)"}
     end
   end
 
@@ -174,5 +174,51 @@ defmodule Kiwi.Persist do
       inserted_at: n.inserted_at
     })
     |> Repo.all()
+  end
+
+  def update_notification_status(user_id, notification_id) do
+    transaction_result =
+      Ecto.Multi.new()
+      |> Ecto.Multi.run(:notification, fn repo, changes ->
+        query_result =
+          UserNotification
+          |> where(
+            [un],
+            un.to_user_id == ^user_id and
+              un.notification_id == ^notification_id and
+              un.status == :sent
+          )
+          |> Repo.one()
+
+        case query_result do
+          nil -> {:error, :not_found}
+          notification -> {:ok, notification}
+        end
+      end)
+      |> Ecto.Multi.update_all(
+        :update_all,
+        fn %{notification: notification} ->
+          from(un in UserNotification,
+            where: un.notification_id == ^notification_id and un.to_user_id == ^user_id,
+            update: [set: [status: :seen]]
+          )
+        end,
+        []
+      )
+      |> Repo.transaction()
+
+    # dbg(transaction_result)
+
+    case transaction_result do
+      {:ok, %{update_all: {count, nil}, notification: notification}} ->
+        {:ok, notification, count}
+
+      {:error, operation, value, _} ->
+        {:error,
+         "error at operation: `#{Atom.to_string(operation)}`, value: `#{Atom.to_string(value)}`"}
+
+      {:ok, _} ->
+        {:ok, "successfully processed transaction (unhandled case though)"}
+    end
   end
 end

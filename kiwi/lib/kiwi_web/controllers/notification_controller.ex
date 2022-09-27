@@ -25,8 +25,8 @@ defmodule KiwiWeb.NotificationController do
           count: count
         })
 
-      {:error, message} ->
-        ControllerUtils.handle_json_view(conn, "create_notification_error.json")
+      {:error, error} ->
+        ControllerUtils.handle_json_view(conn, "notification_error.json", %{error: error})
     end
   end
 
@@ -37,5 +37,20 @@ defmodule KiwiWeb.NotificationController do
     ControllerUtils.handle_json_view(conn, "user_notifications.json", %{
       notifications: notifications
     })
+  end
+
+  def update_status_to_seen(conn, %{"id" => notification_id}) do
+    user_id = conn.assigns[:user].id
+
+    case Persist.update_notification_status(user_id, notification_id) do
+      {:ok, notification, count} ->
+        ControllerUtils.handle_json_view(conn, "create_notification_success.json", %{
+          notification: notification,
+          count: count
+        })
+
+      {:error, error} ->
+        ControllerUtils.handle_json_view(conn, "notification_error.json", %{error: error})
+    end
   end
 end

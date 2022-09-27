@@ -3,12 +3,12 @@ defmodule KiwiWeb.NotificationView do
 
   def render("create_notification_success.json", %{notification: notification, count: count}) do
     data = render_one(notification, __MODULE__, "notification_dto.json")
-    data = Map.put(data, :message, "updated #{inspect(count)} records")
+    data = Map.put(data, :message, "affected #{inspect(count)} records")
     success_response(data)
   end
 
-  def render("create_notification_error.json", _assigns) do
-    error_response("unable to create notification")
+  def render("notification_error.json", %{error: error}) do
+    error_response(error)
   end
 
   def render("user_notifications.json", %{notifications: notifications}) do
