@@ -10,10 +10,13 @@ defmodule DurianWeb.Router do
   scope "/api", DurianWeb do
     pipe_through :api
 
+    get "/noop", UserController, :noop
     get "/users", UserController, :list
+    get "/users/self", UserController, :get_self
     get "/users/:id", UserController, :get_user
     post "/users", UserController, :register
     post "/users/login", UserController, :login
+    delete "/users/logout", UserController, :logout
   end
 
   # Enables LiveDashboard only for development

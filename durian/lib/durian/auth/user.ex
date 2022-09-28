@@ -1,5 +1,7 @@
 defmodule Durian.Auth.User do
   use Ecto.Schema
+  # will allow to save `User` struct in Nebulex Cache
+  use Accessible
   import Ecto.Changeset
   require Logger
 
@@ -24,14 +26,10 @@ defmodule Durian.Auth.User do
 
   @doc false
   def register_user_changeset(user, attrs, opts \\ []) do
-    dbg(user)
-    dbg(attrs)
-
     user
     |> cast(attrs, [:email, :password])
     |> validate_email()
     |> validate_password(opts)
-    |> dbg()
   end
 
   def valid_password?(%Durian.Auth.User{hashed_password: hashed_password}, password)
