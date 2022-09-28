@@ -45,9 +45,20 @@ defmodule Kiwi.Persist do
     |> Repo.insert()
   end
 
-  def list_topic_subscribers(topic_id) do
+  @doc """
+  If passing `to_users` list then will fetch topic subscribers (by `topic_id`)
+  within `to_users` list only, otherwise will get all topic subscribers
+  """
+  def list_topic_subscribers(topic_id, to_users) when is_list(to_users) do
+    dynamic_filter =
+      case to_users do
+        [] -> dynamic([sub], sub.topic_id == ^topic_id)
+        ids -> dynamic([sub], sub.topic_id == ^topic_id and sub.user_id in ^to_users)
+      end
+
     TopicSubscriber
-    |> Ecto.Query.where(topic_id: ^topic_id)
+    |> where(topic_id: ^topic_id)
+    |> where(^dynamic_filter)
     |> Repo.all()
   end
 
@@ -81,43 +92,52 @@ defmodule Kiwi.Persist do
   Works with transactions, it sequentially performs some preconditions (validations)
   and updates the `users_notifications` entity
   """
-  def insert_users_notifications(users, notification_attrs) do
+  def insert_users_notifications(notification_attrs, to_users) do
     notification_changeset = Notification.changeset(%Notification{}, notification_attrs)
 
     transaction_result =
       Ecto.Multi.new()
-      |> Ecto.Multi.run(:is_valid_notification, fn _repo, _changes ->
-        case notification_changeset.valid? do
-          true ->
-            {:ok, nil}
-
-          false ->
-            {:error, :invalid_notification}
-        end
+      |> Ecto.Multi.run(:notification_changeset, fn _repo, _changes ->
+        if notification_changeset.valid?,
+          do: {:ok, nil},
+          else: {:error, :invalid_notification}
       end)
       |> Ecto.Multi.run(:is_topic_creator, fn _repo, _changes ->
-        is_topic_creator(notification_attrs["topic_id"], notification_attrs["from_user_id"])
+        topic_id = notification_attrs["topic_id"]
+        from_user_id = notification_attrs["from_user_id"]
+        is_topic_creator(topic_id, from_user_id)
+      end)
+      |> Ecto.Multi.run(:users, fn _repo, changes ->
+        subscribers = list_topic_subscribers(notification_attrs["topic_id"], to_users)
+
+        case subscribers do
+          [] -> {:error, :no_subscribers}
+          list -> {:ok, list}
+        end
       end)
       |> Ecto.Multi.insert(:notification, notification_changeset)
-      |> Ecto.Multi.insert_all(:insert_all, UserNotification, fn %{notification: notification} ->
-        Enum.map(users, fn user ->
-          add_timestamps(%{
-            notification_id: notification.id,
-            to_user_id: user.user_id,
-            status: :sent
-          })
-        end)
-      end)
+      |> Ecto.Multi.insert_all(
+        :insert_all,
+        UserNotification,
+        fn %{notification: notification, users: users} = changes ->
+          Enum.map(users, fn user ->
+            add_timestamps(%{
+              notification_id: notification.id,
+              to_user_id: user.user_id,
+              status: :sent
+            })
+          end)
+        end
+      )
       |> Repo.transaction()
-
-    # dbg(transaction_result)
 
     case transaction_result do
       {:ok, %{insert_all: {count, nil}, notification: notification}} ->
         {:ok, notification, count}
 
       {:error, operation, value, _} ->
-        {:error, "error at operation: `#{Atom.to_string(operation)}`, value: `#{Atom.to_string(value)}`"}
+        {:error,
+         "error at operation: `#{Atom.to_string(operation)}`, value: `#{Atom.to_string(value)}`"}
 
       {:ok, _} ->
         {:ok, "successfully processed transaction (unhandled case though)"}
@@ -140,9 +160,10 @@ defmodule Kiwi.Persist do
   end
 
   @doc """
-  Very useful [dynamic filters](https://hexdocs.pm/ecto/dynamic-queries.html#content)
+  Gets users notifications filtered by `topic_name`, `from_user_id` and `status`
   """
   def get_user_notifications(user_id, filters) do
+    # dynamic queries - https://hexdocs.pm/ecto/dynamic-queries.html#content)
     dynamic_filters =
       Enum.reduce(filters, dynamic(true), fn current, dynamic_acc ->
         case current do
@@ -206,8 +227,6 @@ defmodule Kiwi.Persist do
         []
       )
       |> Repo.transaction()
-
-    # dbg(transaction_result)
 
     case transaction_result do
       {:ok, %{update_all: {count, nil}, notification: notification}} ->

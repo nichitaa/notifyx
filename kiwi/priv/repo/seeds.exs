@@ -11,7 +11,6 @@ defmodule Seeds do
   alias Kiwi.Repo
 
   def run() do
-    dbg("run")
     user_id1 = "1111b487-9b6f-457a-be11-37eeb66feccb"
     user_id2 = "2222b487-9b6f-457a-be11-37eeb66feccb"
 
@@ -24,7 +23,7 @@ defmodule Seeds do
       })
       |> Repo.insert()
 
-    dbg(topic)
+    # dbg(topic)
 
     {:ok, sub} =
       TopicSubscriber.changeset(%TopicSubscriber{}, %{
@@ -33,7 +32,7 @@ defmodule Seeds do
       })
       |> Repo.insert()
 
-    dbg(sub)
+    # dbg(sub)
 
     #    {:ok, notification} =
     #      Notification.changeset(%Notification{}, %{

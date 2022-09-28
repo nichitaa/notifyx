@@ -14,11 +14,9 @@ defmodule KiwiWeb.NotificationController do
       )
       when is_list(to_users) do
     user_id = conn.assigns[:user].id
-
-    subscribers = Persist.list_topic_subscribers(topic_id)
     notification_params = Map.put(params, "from_user_id", user_id)
 
-    case Persist.insert_users_notifications(subscribers, notification_params) do
+    case Persist.insert_users_notifications(notification_params, to_users) do
       {:ok, notification, count} ->
         ControllerUtils.handle_json_view(conn, "create_notification_success.json", %{
           notification: notification,
