@@ -6,6 +6,8 @@ defmodule Durian.Application do
   @impl true
   def start(_type, _args) do
     children = [
+      # Start the Nebulex Cache
+      Durian.Cache,
       # Start the Ecto repository
       Durian.Repo,
       # Start the Telemetry supervisor

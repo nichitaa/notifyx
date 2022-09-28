@@ -1,9 +1,9 @@
-defmodule Durian.MixProject do
+defmodule Kiwi.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :durian,
+      app: :kiwi,
       version: "0.1.0",
       elixir: "~> 1.12",
       elixirc_paths: elixirc_paths(Mix.env()),
@@ -19,7 +19,7 @@ defmodule Durian.MixProject do
   # Type `mix help compile.app` for more information.
   def application do
     [
-      mod: {Durian.Application, []},
+      mod: {Kiwi.Application, []},
       extra_applications: [:logger, :runtime_tools]
     ]
   end
@@ -33,7 +33,6 @@ defmodule Durian.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:pbkdf2_elixir, "~> 2.0"},
       {:phoenix, "~> 1.6.12"},
       {:phoenix_ecto, "~> 4.4"},
       {:ecto_sql, "~> 3.6"},
@@ -45,7 +44,8 @@ defmodule Durian.MixProject do
       {:plug_cowboy, "~> 2.5"},
       {:nebulex, "~> 2.3"},
       {:decorator, "~> 1.4"},
-      {:accessible, "~> 0.3.0"}
+      {:accessible, "~> 0.3.0"},
+      {:httpoison, "~> 1.8"}
     ]
   end
 
@@ -61,7 +61,7 @@ defmodule Durian.MixProject do
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
-      "durian.reset": ["ecto.drop --force-drop", "ecto.setup"]
+      "kiwi.reset": ["ecto.drop --force-drop", "ecto.setup"]
     ]
   end
 end
