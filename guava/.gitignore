@@ -26,3 +26,5 @@ guava-*.tar
 
 /service_account.json/
 
+/oauth_refresh_token.json/
+
