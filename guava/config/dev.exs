@@ -1,16 +1,8 @@
 import Config
 
-config :kiwi, Kiwi.Repo,
-  username: "postgres",
-  password: "admin",
-  port: 5433,
-  hostname: "localhost",
-  database: "kiwi_dev",
-  stacktrace: true,
-  show_sensitive_data_on_connection_error: true,
-  pool_size: 10
-
-config :kiwi, KiwiWeb.Endpoint,
+config :guava, GuavaWeb.Endpoint,
+  # Binding to loopback ipv4 address prevents access from other machines.
+  # Change to `ip: {0, 0, 0, 0}` to allow access from other machines.
   http: [
     ip: {127, 0, 0, 1},
     port: String.to_integer(System.get_env("PORT") || "6000")
@@ -18,7 +10,7 @@ config :kiwi, KiwiWeb.Endpoint,
   check_origin: false,
   code_reloader: true,
   debug_errors: false,
-  secret_key_base: "VwBcIb3CvvGDe/EF4LLa4BZU1eR8shahC7gx57woZmuiYIdKnxH+S4sXUacrEmuY",
+  secret_key_base: "89FySDS7Jp14kdWLlqay5pHIwEbCvAYdmcUl+BMqY3/uUPourd/RqSPcRAkHzyrc",
   watchers: []
 
 # Do not include metadata nor timestamps in development logs

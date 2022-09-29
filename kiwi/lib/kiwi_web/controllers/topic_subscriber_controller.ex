@@ -16,7 +16,7 @@ defmodule KiwiWeb.TopicSubscriberController do
   end
 
   def list_subscribers(conn, %{"topic_id" => topic_id}) do
-    subscribers = Persist.list_topic_subscribers(topic_id)
+    subscribers = Persist.list_topic_subscribers(topic_id, [])
     ControllerUtils.handle_json_view(conn, "subscribers.json", %{subscribers: subscribers})
   end
 
