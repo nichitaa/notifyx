@@ -24,7 +24,7 @@ guava-*.tar
 
 /.idea/
 
-/service_account.json/
+service_account.json
 
-/oauth_refresh_token.json/
+oauth_refresh_token.json
 
