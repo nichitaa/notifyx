@@ -5,7 +5,7 @@ config :guava, GuavaWeb.Endpoint,
   # Change to `ip: {0, 0, 0, 0}` to allow access from other machines.
   http: [
     ip: {127, 0, 0, 1},
-    port: String.to_integer(System.get_env("PORT") || "4000")
+    port: String.to_integer(System.get_env("PORT") || "6000")
   ],
   check_origin: false,
   code_reloader: true,

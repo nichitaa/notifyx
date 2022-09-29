@@ -38,7 +38,8 @@ defmodule Acai.MixProject do
 
   defp aliases do
     [
-      setup: ["deps.get"]
+      setup: ["deps.get"],
+      "acai.reset": ["ecto.drop --force-drop", "ecto.setup"]
     ]
   end
 end

@@ -10,9 +10,11 @@ config :kiwi, Kiwi.Repo,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
 
-
 config :kiwi, KiwiWeb.Endpoint,
-  http: [ip: {127, 0, 0, 1}, port: 9000],
+  http: [
+    ip: {127, 0, 0, 1},
+    port: String.to_integer(System.get_env("PORT") || "6000")
+  ],
   check_origin: false,
   code_reloader: true,
   debug_errors: false,

@@ -12,13 +12,14 @@ import {
 import { LoadingButton } from '@mui/lab';
 import { FC } from 'react';
 import { Socket } from 'phoenix';
+import { config } from '../config/config';
 
 const LoginFields = () => {
   const [credentials, setCredentials] = useRecoilState(userCredentialsAtom);
   const { status, connect } = usePhxSocket();
 
   const handleConnect = () => {
-    const socket = new Socket('ws://localhost:5000/socket', {
+    const socket = new Socket(config.WSGatewayBaseUrl, {
       params: credentials,
     });
     connect(socket);
