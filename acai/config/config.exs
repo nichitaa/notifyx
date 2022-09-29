@@ -1,7 +1,7 @@
 import Config
 
 config :acai,
-  auth_service_base_url: "http://localhost:4000/api/users"
+  auth_service_base_url: "http://localhost:5000/api/users"
 
 # Configures the endpoint
 config :acai, AcaiWeb.Endpoint,

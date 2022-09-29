@@ -1,29 +1,12 @@
 ### Durian (Authorization API)
 
-Phoenix Application
+`port: 5000`
+
 
 ```shell
-$ mix phx.new durian --database postgres --no-assets --no-html --no-gettext --no-live --no-mailer --binary-id --verbose
-```
+# startup
+$ set PORT=5000&& iex --no-pry --sname auth_node1 -S mix phx.server
 
-New `JSON` resource & context
-
-```shell
-
-$ mix phx.gen.json Auth User users email:string hashed_password:string token:string expiry:utc_datetime
-```
-
-For the first start
-
-```shell
-$ mix deps.get
-$ mix ecto.setup
-$ iex --no-pry -S mix phx.server
-```
-
-Drop & new
-
-```shell
-$ mix ecto.drop --force-drop
-$ mix ecto.setup
+# drop & clean setup
+$ mix durian.reset
 ```

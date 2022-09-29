@@ -21,7 +21,7 @@ Each service / component will be in a dedicated folder
 * [`durian`](./durian) - Auth Service
 * [`kiwi`](./kiwi) - Persistent Service (and business logic)
 * [`client`](./client) - Client test application
-* `guava` - Mailing Service
+* [`guava`](./guava) - Mailing Service
 * ...
 
 #### _What should be implemented (technically) ?_

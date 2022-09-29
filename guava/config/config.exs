@@ -1,28 +1,17 @@
 import Config
 
-config :durian,
-  ecto_repos: [Durian.Repo],
-  generators: [binary_id: true],
-  auth_header_key: "durian-token"
-
-config :durian, Durian.Cache,
-  # GC interval for pushing new generation: 12 hrs
-  gc_interval: :timer.hours(12),
-  # Max 1 million entries in cache
-  max_size: 1_000_000,
-  # Max 1 GB of memory
-  allocated_memory: 1_000_000_000,
-  # GC min timeout: 10 sec
-  gc_cleanup_min_timeout: :timer.seconds(10),
-  # GC max timeout: 10 min
-  gc_cleanup_max_timeout: :timer.minutes(10)
+config :guava,
+  # In this service cluster, only one Node can expose endpoints, 
+  # and act as parent not and load-balance requests, other Nodes could process
+  # requests via RPC
+  enable_rest_api: String.to_integer(System.get_env("ENABLE_REST_API") || "0")
 
 # Configures the endpoint
-config :durian, DurianWeb.Endpoint,
+config :guava, GuavaWeb.Endpoint,
   url: [host: "localhost"],
-  render_errors: [view: DurianWeb.ErrorView, accepts: ~w(json), layout: false],
-  pubsub_server: Durian.PubSub,
-  live_view: [signing_salt: "u9TQM1zv"],
+  render_errors: [view: GuavaWeb.ErrorView, accepts: ~w(json), layout: false],
+  pubsub_server: Guava.PubSub,
+  live_view: [signing_salt: "2a45NjIk"],
   # configuring Cowboy2Adapter: https://hexdocs.pm/phoenix/Phoenix.Endpoint.Cowboy2Adapter.html
   http: [
     transport_options: [
@@ -33,6 +22,12 @@ config :durian, DurianWeb.Endpoint,
     ]
   ]
 
+# Configures the mailer
+config :guava, Guava.Mailer, adapter: Swoosh.Adapters.Gmail
+
+# Swoosh API client is needed for adapters other than SMTP.
+config :swoosh, :api_client, Swoosh.ApiClient.Finch
+
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
@@ -40,6 +35,9 @@ config :logger, :console,
 
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
+
+# For Google OAuth
+config :goth, json: File.read!("service_account.json")
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
