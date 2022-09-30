@@ -4,7 +4,7 @@ import { Socket } from 'phoenix';
 export const userCredentialsAtom = atom<{ email: string; password: string }>({
   key: 'userCredentialsAtom',
   default: {
-    email: 'first@gmail.com',
+    email: '1@gmail.com',
     password: '123',
   },
 });

@@ -11,7 +11,8 @@ defmodule Kiwi.Services.Auth do
     headers = [
       {"content-type", headers_map["content_type"]},
       {"cookie", headers_map["cookie"]},
-      {"host", headers_map["host"]}
+      {"host", headers_map["host"]},
+      {"durian-token", headers_map["durian-token"]}
     ]
 
     with {:ok, auth_base_url} <- Discovery.get_service_address("auth"),
