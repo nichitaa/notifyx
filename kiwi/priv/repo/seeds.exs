@@ -23,16 +23,12 @@ defmodule Seeds do
       })
       |> Repo.insert()
 
-    # dbg(topic)
-
     {:ok, sub} =
       TopicSubscriber.changeset(%TopicSubscriber{}, %{
         topic_id: topic.id,
         user_id: user_id2
       })
       |> Repo.insert()
-
-    # dbg(sub)
 
     #    {:ok, notification} =
     #      Notification.changeset(%Notification{}, %{
@@ -42,7 +38,6 @@ defmodule Seeds do
     #      })
     #      |> Repo.insert()
     #
-    #    dbg(notification)
     #
     #    user_notification =
     #      UserNotification.changeset(%UserNotification{}, %{

@@ -1,98 +1,18 @@
-import {
-  Box,
-  BoxProps,
-  Button,
-  Divider,
-  styled,
-  TextField,
-  Typography,
-} from '@mui/material';
-import { LoadingButton } from '@mui/lab';
-import { usePhxSocket } from '../hooks/use-phx-socket';
-import { usePhxChannel } from '../hooks/use-phx-channel';
-import { useState } from 'react';
-import { useRecoilValue } from 'recoil';
-import { userCredentialsAtom } from '../recoil/atoms';
+import {Box, BoxProps, Button, Divider, styled, TextField, Typography,} from '@mui/material';
+import {usePhxSocket} from '../hooks/use-phx-socket';
+import {useRecoilValue} from 'recoil';
+import {userCredentialsAtom} from '../recoil/atoms';
 import JoinTopic from './join-topic';
-
-type Notification = {
-  from: string;
-  message: string;
-  seen_date: string | null;
-  send_date: string | null;
-  to: string | null;
-};
-type State = { notifications: Notification[]; loading: boolean };
-type Actions =
-  | {
-  event: 'new_notification';
-  payload: Notification;
-}
-  | {
-  event: 'send_notification';
-  payload?: undefined;
-}
-  | {
-  event: 'phx_reply';
-  payload: {
-    response: {
-      success: boolean;
-    };
-  };
-};
-
-const channelName = 'notification:all';
-const reducer = (state: State, { event, payload }: Actions) => {
-  switch (event) {
-    case 'new_notification': {
-      return {
-        ...state,
-        notifications: [...state.notifications, payload],
-      };
-    }
-    case 'phx_reply': {
-      return {
-        ...state,
-        loading: false,
-      };
-    }
-    case 'send_notification': {
-      return {
-        ...state,
-        loading: true,
-      };
-    }
-    default: {
-      return state;
-    }
-  }
-};
-const initialState: State = {
-  loading: false,
-  notifications: [],
-};
+import {useState} from "react";
 
 const UserNotifications = () => {
-  const { disconnect } = usePhxSocket();
+  const {disconnect} = usePhxSocket();
+  const [topicsNo, setTopicsNo] = useState(1);
   const userCredentials = useRecoilValue(userCredentialsAtom);
-  // const [message, setMessage] = useState('default message');
-  // const [to, setTo] = useState('second@gmail.com');
-  // const { state, broadcast, dispatch } = usePhxChannel(
-  //   channelName,
-  //   reducer,
-  //   initialState,
-  // );
-  //
-  // const broadcastNewNotification = () => {
-  //   dispatch({ event: 'send_notification' });
-  //   broadcast('new_notification', {
-  //     message,
-  //     to,
-  //   });
-  // };
+
   return (
     <StyledUserNotificationBox>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+      <Box sx={{display: 'flex', justifyContent: 'space-between'}}>
         <Typography component={'div'}>
           <TextField
             required
@@ -102,48 +22,22 @@ const UserNotifications = () => {
             value={userCredentials.email}
           />
         </Typography>
+        <Button onClick={() => setTopicsNo(prev => prev + 1)} variant={'text'} size={'small'}>
+          <code>new topic</code>
+        </Button>
         <Button onClick={disconnect} variant={'contained'} size={'small'}>
           <code>disconnect</code>
         </Button>
       </Box>
-
-
-      <JoinTopic />
-
-      {/*<Box sx={{ display: 'flex', justifyContent: 'space-between' }}>*/}
-      {/*  <TextField*/}
-      {/*    required*/}
-      {/*    size={'small'}*/}
-      {/*    label='notification'*/}
-      {/*    value={message}*/}
-      {/*    onChange={(event) => setMessage(event.target.value)}*/}
-      {/*  />*/}
-      {/*  <TextField*/}
-      {/*    required*/}
-      {/*    size={'small'}*/}
-      {/*    label='to'*/}
-      {/*    value={to}*/}
-      {/*    onChange={(event) => setTo(event.target.value)}*/}
-      {/*  />*/}
-      {/*  <LoadingButton*/}
-      {/*    disabled={state.loading}*/}
-      {/*    onClick={broadcastNewNotification}*/}
-      {/*    variant={'contained'}*/}
-      {/*  >*/}
-      {/*    <code>broadcast</code>*/}
-      {/*  </LoadingButton>*/}
-      {/*</Box>*/}
-      {/*<Divider textAlign={'left'} sx={{ m: '40px 0' }}>*/}
-      {/*  Notifications area*/}
-      {/*</Divider>*/}
-      {/*<Box sx={{ height: 300, overflow: 'auto' }}>*/}
-      {/*  <pre>{JSON.stringify(state.notifications, null, 2)}</pre>*/}
-      {/*</Box>*/}
+      <Divider textAlign={'left'} sx={{m: '10px 0'}}>
+        Topics
+      </Divider>
+      {Array.from({length: topicsNo}).map((_, i) => <JoinTopic key={`topic_${i}`} defaultTopicName={`topic_${i}`}/>)}
     </StyledUserNotificationBox>
   );
 };
 
-const StyledUserNotificationBox = styled(Box)<BoxProps>(({ theme }) => ({
+const StyledUserNotificationBox = styled(Box)<BoxProps>(({theme}) => ({
   padding: 10,
 }));
 

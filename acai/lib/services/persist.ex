@@ -3,6 +3,10 @@ defmodule Acai.Services.Persist do
   @recv_timeout 1000
   @list_token_endpoint "/api/topics"
   @create_topic_endpoint "/api/topics"
+  @subscribe_to_topic_endpoint "/api/subscribers"
+  @create_notification_endpoint "/api/notifications"
+
+  ## Topics
 
   def list_topics(socket) do
     headers = get_headers(socket)
@@ -40,12 +44,71 @@ defmodule Acai.Services.Persist do
     {:ok, topics} = list_topics(socket)
     topic = Enum.find(topics, fn t -> t["name"] === topic_name end)
 
-    if topic == nil do
-      {:ok, new_topic} = create_topic(socket, topic_name)
-      {:created, new_topic}
-    end
+    case topic do
+      nil ->
+        {:ok, new_topic} = create_topic(socket, topic_name)
+        {:created, new_topic}
 
-    {:existing, topic}
+      existing_topic ->
+        {:existing, topic}
+    end
+  end
+
+  ## Subscribers
+
+  def subscribe_user_to_topic(socket, topic_id) do
+    headers = get_headers(socket)
+    options = get_options()
+
+    with {:ok, base_url} <- base_url(),
+         subscribe_to_topic_url <- base_url <> @subscribe_to_topic_endpoint <> "/#{topic_id}",
+         response <- HTTPoison.post(subscribe_to_topic_url, Jason.encode!(%{}), headers, options),
+         {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- response,
+         %{"success" => true, "data" => subscription} <- Jason.decode!(body) do
+      {:ok, subscription}
+    else
+      _ -> {:error, nil}
+    end
+  end
+
+  def unsubscribe_user_from_topic(socket) do
+    headers = get_headers(socket)
+    options = get_options()
+
+    if Map.has_key?(socket.assigns, :topic_id) do
+      topic_id = socket.assigns.topic_id
+
+      with {:ok, base_url} <- base_url(),
+           subscribe_to_topic_url <- base_url <> @subscribe_to_topic_endpoint <> "/#{topic_id}",
+           response <- HTTPoison.delete(subscribe_to_topic_url, headers, options),
+           {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- response,
+           %{"success" => true, "data" => data} <- Jason.decode!(body) do
+        {:ok, data}
+      else
+        _ -> {:error, nil}
+      end
+
+      {:ok, :not_subscribed}
+    end
+  end
+
+  ## Notifications
+
+  def create_notification(socket, %Notification{message: message, to: to}) do
+    topic_id = socket.assigns.topic_id
+    headers = get_headers(socket)
+    options = get_options()
+    body = Jason.encode!(%{message: message, to_users: to, topic_id: topic_id})
+
+    with {:ok, base_url} <- base_url(),
+         create_notification_url <- base_url <> @create_notification_endpoint,
+         response <- HTTPoison.post(create_notification_url, body, headers, options),
+         {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- response,
+         %{"success" => true, "data" => data} <- Jason.decode!(body) do
+      {:ok, data}
+    else
+      error_data -> {:error, error_data}
+    end
   end
 
   ## Privates

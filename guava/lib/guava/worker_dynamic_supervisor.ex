@@ -9,7 +9,6 @@ defmodule Guava.WorkerDynamicSupervisor do
   def terminate_child(pid), do: DynamicSupervisor.terminate_child(__MODULE__, pid)
 
   def start_child(opts) do
-    dbg(opts)
 
     child_spec = %{
       id: Guava.Worker,
