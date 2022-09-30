@@ -17,11 +17,12 @@
 
 #### _[Naming is hard](https://quotesondesign.com/phil-karlton/)_
 Each service / component will be in a dedicated folder
-* [`acai`](./acai) - Gateway with Phoenix Channels
-* [`durian`](./durian) - Auth Service
-* [`kiwi`](./kiwi) - Persistent Service (and business logic)
-* [`client`](./client) - Client test application
-* [`guava`](./guava) - Mailing Service
+* [`acai`](./acai) - Gateway with Phoenix Channels (`port: 4000`)
+* [`durian`](./durian) - Auth Service (`port: 5000`)
+* [`kiwi`](./kiwi) - Persistent Service (`port: 6000`)
+* [`client`](./client) - Client test application (`port: 3000`)
+* [`guava`](./guava) - Mailing Service (`port: 7000`)
+* [`julik`](./julik) - Service Discovery (`port: 8000`)
 * ...
 
 #### _What should be implemented (technically) ?_

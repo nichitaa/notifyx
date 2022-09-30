@@ -1,13 +1,19 @@
 defmodule Acai.Services.Auth do
+  alias Acai.ServicesAgent
+
+  @recv_timeout 1000
+  @login_endpoint "/api/users/login"
+
   def login_and_get_user(email, password) do
     dbg("email: #{email} password: #{password}")
-    url = base_url() <> "/login"
     headers = ["Content-Type": "application/json"]
-    options = [recv_timeout: 1500]
+    options = [recv_timeout: @recv_timeout]
     body = Jason.encode!(%{email: email, password: password})
-    response = HTTPoison.post(url, body, headers, options)
 
-    with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- response,
+    with {:ok, base_url} <- base_url(),
+         login_url <- base_url <> @login_endpoint,
+         response <- HTTPoison.post(login_url, body, headers, options),
+         {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- response,
          %{"success" => true, "token" => token, "id" => user_id} <- Jason.decode!(body) do
       user = %{
         email: email,
@@ -24,5 +30,5 @@ defmodule Acai.Services.Auth do
 
   ## Privates
 
-  defp base_url(), do: Application.fetch_env!(:acai, :auth_service_base_url)
+  defp base_url(), do: ServicesAgent.get_service_address("auth")
 end

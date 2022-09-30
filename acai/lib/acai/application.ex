@@ -6,17 +6,14 @@ defmodule Acai.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      # Start the Telemetry supervisor
+      {Acai.ServicesAgent, %{}},
       AcaiWeb.Telemetry,
-      # Start the PubSub system
       {Phoenix.PubSub, name: Acai.PubSub},
-      # Start the Endpoint (http/https)
       AcaiWeb.Endpoint
     ]
 
     opts = [strategy: :one_for_one, name: Acai.Supervisor]
     HTTPoison.start()
-    dbg("Starting Acai.Application...")
     Supervisor.start_link(children, opts)
   end
 

@@ -1,11 +1,13 @@
 import Config
 
-# Configures the endpoint
-config :acai, AcaiWeb.Endpoint,
+config :julik,
+  gateway_base_url: "http://localhost:4000"
+
+config :julik, JulikWeb.Endpoint,
   url: [host: "localhost"],
-  render_errors: [view: AcaiWeb.ErrorView, accepts: ~w(json), layout: false],
-  pubsub_server: Acai.PubSub,
-  live_view: [signing_salt: "HQhnTQfn"],
+  render_errors: [view: JulikWeb.ErrorView, accepts: ~w(json), layout: false],
+  pubsub_server: Julik.PubSub,
+  live_view: [signing_salt: "NaC68GrA"],
   # configuring Cowboy2Adapter: https://hexdocs.pm/phoenix/Phoenix.Endpoint.Cowboy2Adapter.html
   http: [
     transport_options: [
@@ -16,12 +18,10 @@ config :acai, AcaiWeb.Endpoint,
     ]
   ]
 
-# Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
 
-# Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
 import_config "#{config_env()}.exs"
