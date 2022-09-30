@@ -7,6 +7,7 @@ defmodule AcaiWeb.Router do
 
   scope "/api", AcaiWeb do
     pipe_through :api
+    post "/register_service", ServiceRegisterController, :register_service
   end
 
   if Mix.env() in [:dev, :test] do

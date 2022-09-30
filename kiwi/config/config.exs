@@ -3,7 +3,7 @@ import Config
 config :kiwi,
   ecto_repos: [Kiwi.Repo],
   generators: [binary_id: true],
-  auth_service_base_url: "http://localhost:5000/api/users"
+  service_discovery_base_url: "http://localhost:8000"
 
 config :kiwi, Kiwi.Cache,
   # GC interval for pushing new generation: 12 hrs

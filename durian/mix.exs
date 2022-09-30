@@ -45,7 +45,8 @@ defmodule Durian.MixProject do
       {:plug_cowboy, "~> 2.5"},
       {:nebulex, "~> 2.3"},
       {:decorator, "~> 1.4"},
-      {:accessible, "~> 0.3.0"}
+      {:accessible, "~> 0.3.0"},
+      {:httpoison, "~> 1.8"}
     ]
   end
 

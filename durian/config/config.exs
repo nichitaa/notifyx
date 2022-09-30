@@ -3,7 +3,8 @@ import Config
 config :durian,
   ecto_repos: [Durian.Repo],
   generators: [binary_id: true],
-  auth_header_key: "durian-token"
+  auth_header_key: "durian-token",
+  service_discovery_base_url: "http://localhost:8000"
 
 config :durian, Durian.Cache,
   # GC interval for pushing new generation: 12 hrs
