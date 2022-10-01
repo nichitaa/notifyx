@@ -55,7 +55,7 @@ defmodule Guava.Worker do
       |> Mailer.deliver(access_token: access_token)
 
     # terminate worker process
-    Process.send_after(self(), :terminate, 1000)
+    Process.send_after(self(), :terminate, terminate_worker_after())
 
     {:reply, response, state}
   end
@@ -67,6 +67,10 @@ defmodule Guava.Worker do
     {:noreply, state}
   end
 
+  ## Privates
+
   defp log(text),
     do: Logger.info("[#{node()}] [#{__MODULE__}] [#{inspect(self())}] - #{inspect(text)}")
+
+  defp terminate_worker_after(), do: Application.fetch_env!(:guava, :terminate_worker_after)
 end

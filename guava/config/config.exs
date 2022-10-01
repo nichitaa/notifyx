@@ -5,7 +5,10 @@ config :guava,
   # and act as parent not and load-balance requests, other Nodes could process
   # requests via RPC
   enable_rest_api: String.to_integer(System.get_env("ENABLE_REST_API") || "0"),
-  service_discovery_base_url: "http://localhost:8000"
+  service_discovery_base_url: "http://localhost:8000",
+  # test concurrent task limit with limit = 2, timeout = 5000
+  concurent_task_limit: 2,
+  terminate_worker_after: 5000
 
 # Configures the endpoint
 config :guava, GuavaWeb.Endpoint,

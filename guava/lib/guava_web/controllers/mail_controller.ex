@@ -19,13 +19,13 @@ defmodule GuavaWeb.MailController do
   """
   def send_mail_rpc(conn, params) do
     log("[rpc]: received request")
-    {:ok, worker_pid} = WorkerDynamicSupervisor.start_child([])
-    worker_response = Worker.send_mail(worker_pid, params)
-    # dbg(worker_response)
 
-    case worker_response do
-      {:ok, success_data} ->
-        ControllerUtils.handle_json_view(conn, "send_mail_success.json", success_data)
+    with {:ok, worker_pid} <- WorkerDynamicSupervisor.start_child([]),
+         {:ok, success_data} <- Worker.send_mail(worker_pid, params) do
+      ControllerUtils.handle_json_view(conn, "send_mail_success.json", success_data)
+    else
+      {:error, :max_children} ->
+        ControllerUtils.handle_json_view(conn, "too_many_requests.json", :too_many_requests)
 
       _ ->
         ControllerUtils.handle_json_view(conn, "send_mail_error.json")
