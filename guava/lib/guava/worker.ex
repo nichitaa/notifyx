@@ -52,12 +52,19 @@ defmodule Guava.Worker do
       |> subject(subject)
       # |> html_body("<h1>Hello</h1>")
       |> text_body(message)
+      |> put_private(:client_options, [receive_timeout: send_email_timeout()])
       |> Mailer.deliver(access_token: access_token)
 
     # terminate worker process
     Process.send_after(self(), :terminate, terminate_worker_after())
 
-    {:reply, response, state}
+    case response do
+      {:error, %Mint.TransportError{reason: :timeout}} ->
+        {:reply, {:error, :timeout}, state}
+
+      _ ->
+        {:reply, response, state}
+    end
   end
 
   @impl true
@@ -73,4 +80,6 @@ defmodule Guava.Worker do
     do: Logger.info("[#{node()}] [#{__MODULE__}] [#{inspect(self())}] - #{inspect(text)}")
 
   defp terminate_worker_after(), do: Application.fetch_env!(:guava, :terminate_worker_after)
+
+  defp send_email_timeout(), do: Application.fetch_env!(:guava, :send_email_timeout)
 end

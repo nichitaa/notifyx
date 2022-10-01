@@ -13,6 +13,10 @@ defmodule GuavaWeb.MailView do
     error_response("service is already processing maximum number of simultaneous requests")
   end
 
+  def render("request_timeout.json", _assigns) do
+    error_response("request timeout, taking to long to send the request")
+  end
+
   ## Privates 
 
   defp success_response(payload), do: %{success: true, data: payload}

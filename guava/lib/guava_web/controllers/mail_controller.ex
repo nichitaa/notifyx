@@ -27,6 +27,9 @@ defmodule GuavaWeb.MailController do
       {:error, :max_children} ->
         ControllerUtils.handle_json_view(conn, "too_many_requests.json", :too_many_requests)
 
+      {:error, :timeout} ->
+        ControllerUtils.handle_json_view(conn, "request_timeout.json", :request_timeout)
+
       _ ->
         ControllerUtils.handle_json_view(conn, "send_mail_error.json")
     end

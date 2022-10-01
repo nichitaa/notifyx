@@ -7,8 +7,9 @@ config :guava,
   enable_rest_api: String.to_integer(System.get_env("ENABLE_REST_API") || "0"),
   service_discovery_base_url: "http://localhost:8000",
   # test concurrent task limit with limit = 2, timeout = 5000
-  concurent_task_limit: 2,
-  terminate_worker_after: 5000
+  concurent_task_limit: 10,
+  terminate_worker_after: 100, # ms
+  send_email_timeout: 1000
 
 # Configures the endpoint
 config :guava, GuavaWeb.Endpoint,
