@@ -4,6 +4,7 @@ defmodule GuavaWeb.Router do
   pipeline :api do
     plug :accepts, ["json"]
     plug Guava.Plugs.ValidateNodeEnableRestApi
+    plug Guava.Plugs.Authenticate
   end
 
   scope "/api", GuavaWeb do

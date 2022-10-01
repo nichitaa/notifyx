@@ -4,7 +4,8 @@ config :guava,
   # In this service cluster, only one Node can expose endpoints, 
   # and act as parent not and load-balance requests, other Nodes could process
   # requests via RPC
-  enable_rest_api: String.to_integer(System.get_env("ENABLE_REST_API") || "0")
+  enable_rest_api: String.to_integer(System.get_env("ENABLE_REST_API") || "0"),
+  service_discovery_base_url: "http://localhost:8000"
 
 # Configures the endpoint
 config :guava, GuavaWeb.Endpoint,

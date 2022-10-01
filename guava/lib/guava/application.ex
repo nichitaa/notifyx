@@ -15,9 +15,11 @@ defmodule Guava.Application do
       {Cluster.Supervisor, [topologies(), [name: Guava.ClusterSupervisor]]},
       GuavaWeb.Telemetry,
       {Phoenix.PubSub, name: Guava.PubSub},
-      GuavaWeb.Endpoint
+      GuavaWeb.Endpoint,
+      {Guava.ServiceStarter, [timeout: 1000]}
     ]
 
+    HTTPoison.start()
     opts = [strategy: :one_for_one, name: Guava.Supervisor]
     Supervisor.start_link(children, opts)
   end

@@ -5,7 +5,7 @@ import {
   GlobalStyles,
   ThemeProvider,
 } from '@mui/material';
-import {FC} from 'react';
+import { FC } from 'react';
 
 const darkTheme = createTheme({
   palette: {
@@ -43,15 +43,15 @@ const globalStyles = (
       },
       '&::-webkit-scrollbar-thumb:hover': {
         background: `${alpha(theme.palette.primary.main, 0.5)}!important`,
-      }
+      },
     })}
   />
 );
 
-const MuiThemeProvider: FC = ({children}) => {
+const MuiThemeProvider: FC = ({ children }) => {
   return (
     <ThemeProvider theme={darkTheme}>
-      <CssBaseline/>
+      <CssBaseline />
       {globalStyles}
       {children}
     </ThemeProvider>

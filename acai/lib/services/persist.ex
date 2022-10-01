@@ -1,10 +1,13 @@
 defmodule Acai.Services.Persist do
   alias Acai.ServicesAgent
+  alias Acai.Services.Auth
+
   @recv_timeout 1000
   @list_token_endpoint "/api/topics"
   @create_topic_endpoint "/api/topics"
   @subscribe_to_topic_endpoint "/api/subscribers"
   @create_notification_endpoint "/api/notifications"
+  @get_notifications_endpoint "/api/notifications"
 
   ## Topics
 
@@ -106,6 +109,29 @@ defmodule Acai.Services.Persist do
          {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- response,
          %{"success" => true, "data" => data} <- Jason.decode!(body) do
       {:ok, data}
+    else
+      error_data -> {:error, error_data}
+    end
+  end
+
+  def get_own_notifications(socket) do
+    topic_name = socket.assigns.topic_name
+    headers = get_headers(socket)
+    options = get_options() ++ [params: [topic_name: topic_name]]
+    {:ok, users} = Auth.get_all_users(socket)
+
+    with {:ok, base_url} <- base_url(),
+         get_notifications_url <- base_url <> @get_notifications_endpoint,
+         response <- HTTPoison.get(get_notifications_url, headers, options),
+         {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- response,
+         %{"success" => true, "data" => data} <- Jason.decode!(body) do
+      populated_with_user =
+        Enum.map(data, fn n ->
+          user = Enum.find(users, fn u -> u["id"] == n["from_user_id"] end)
+          Map.put(n, "from", user["email"])
+        end)
+
+      {:ok, populated_with_user}
     else
       error_data -> {:error, error_data}
     end

@@ -33,6 +33,7 @@ defmodule Guava.MixProject do
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
       {:mail, ">= 0.0.0"},
+      {:httpoison, "~> 1.8"},
       # nodes cluster manager
       {:libcluster, "~> 3.3"},
       # swoosh api client

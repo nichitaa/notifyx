@@ -14,7 +14,7 @@ defmodule AcaiWeb.NotificationChannel do
     user_id = socket.assigns.user.user_id
 
     reply = %{from_join: true, can_broadcast: user_id == topic["created_by"]}
-
+    socket = assign(socket, :topic_name, topic_name)
 
     with {:ok, subscription} <- Persist.subscribe_user_to_topic(socket, topic["id"]) do
       socket = assign(socket, :topic_id, subscription["topic_id"])
@@ -43,6 +43,25 @@ defmodule AcaiWeb.NotificationChannel do
     # the client in UI could have a `loading` state
     # with `{:noreply, socket}` could not block the traffic
     {:reply, {:ok, response}, socket}
+  end
+
+  def handle_in("own_notifications_for_topic", _payload, socket) do
+    dbg("[IN] own_notifications_for_topic")
+    {:ok, notifications} = Persist.get_own_notifications(socket)
+    push(socket, "own_notifications_for_topic", %{success: true, notifications: notifications})
+    {:noreply, socket}
+  end
+
+  def handle_in("send_email", %{"message" => message, "to" => to}, socket) do
+    mailer_response = Acai.Services.Mailer.send_email(socket, message, to)
+
+    reply =
+      case mailer_response do
+        {:ok, data} -> %{success: true, data: data, from_send_email: true}
+        {:error, err_data} -> %{success: false, error: err_data, from_send_email: true}
+      end
+
+    {:reply, {:ok, reply}, socket}
   end
 
   ##################################################################
