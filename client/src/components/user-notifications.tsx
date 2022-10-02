@@ -10,7 +10,7 @@ import {
 import { usePhxSocket } from '../hooks/use-phx-socket';
 import { useRecoilValue } from 'recoil';
 import { userCredentialsAtom } from '../recoil/atoms';
-import JoinTopic from './join-topic';
+import JoinedChannelView from './joined-channel-view';
 import { useState } from 'react';
 import AddIcon from '@mui/icons-material/Add';
 
@@ -47,7 +47,7 @@ const UserNotifications = () => {
         Topics
       </Divider>
       {Array.from({ length: topicsNo }).map((_, i) => (
-        <JoinTopic key={`topic_${i}`} defaultTopicName={`topic_${i}`} />
+        <JoinedChannelView key={`topic_${i}`} defaultTopicName={`topic_${i}`} />
       ))}
     </StyledUserNotificationBox>
   );

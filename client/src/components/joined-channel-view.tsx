@@ -24,7 +24,7 @@ interface MainProps {
   defaultTopicName: string;
 }
 
-const JoinTopic = (props: MainProps) => {
+const JoinedChannelView = (props: MainProps) => {
   const { defaultTopicName } = props;
   const { socket } = usePhxSocket();
 
@@ -270,4 +270,4 @@ const JoinTopic = (props: MainProps) => {
   );
 };
 
-export default JoinTopic;
+export default JoinedChannelView;
