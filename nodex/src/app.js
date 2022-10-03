@@ -2,10 +2,13 @@ const express = require('express');
 const { AvatarRouter } = require('./feature/avatar/avatar.router');
 const { AvatarController } = require('./feature/avatar/avatar.controller');
 const { AuthMiddleware } = require('./middleware/auth.middleware');
+const fetch = require('node-fetch');
 require('express-async-errors');
 
 class App {
   PORT = parseInt(process.env.PORT || '9000');
+  SERVICE_DISCOVERY_BASE_URL =
+    process.env.SERVICE_DISCOVERY_BASE_URL || 'http://localhost:8000';
 
   constructor() {
     this.app = express();
@@ -38,10 +41,41 @@ class App {
     });
   };
 
+  /** Register in Service Discovery */
+  register = async (listener) => {
+    const response = await fetch(
+      `${this.SERVICE_DISCOVERY_BASE_URL}/api/register`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          service: 'generator',
+          address: `http://localhost:${listener.address().port}`,
+        }),
+      }
+    )
+      .then((res) => res.json())
+      .catch((err) => {
+        console.log('[Error] at registering Generator Service: ', err.message);
+        return { success: false };
+      });
+    if (response.success) {
+      console.log('Successfully registered Generator Service');
+    } else {
+      console.log('Retrying to register after 1 sec!');
+      setTimeout(() => {
+        this.register(listener);
+      }, 1000);
+    }
+  };
+
   start = () => {
-    this.app.listen(this.PORT, () =>
-      console.log(`App listening on port ${this.PORT}`)
-    );
+    const listener = this.app.listen(this.PORT, () => {
+      console.log(`App listening on port ${this.PORT}`);
+      this.register(listener);
+    });
   };
 }
 

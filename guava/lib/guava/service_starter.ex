@@ -13,7 +13,10 @@ defmodule Guava.ServiceStarter do
 
   @impl true
   def init(timeout) do
-    schedule(timeout)
+    if enable_rest_api_for_current_node() do
+      schedule(timeout)
+    end
+
     {:ok, timeout}
   end
 
@@ -34,6 +37,11 @@ defmodule Guava.ServiceStarter do
 
     {:noreply, timeout}
   end
+
+  ## Privates
+
+  defp enable_rest_api_for_current_node(),
+    do: Application.fetch_env!(:guava, :enable_rest_api) === 1
 
   defp schedule(timeout), do: Process.send_after(self(), :register_self, timeout)
   defp address(), do: GuavaWeb.Endpoint.url()

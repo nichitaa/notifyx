@@ -9,6 +9,7 @@ module.exports = {
         PORT: 9000,
         NODE_ENV: 'development',
         AUTH_SERVICE_BASE_URL: 'http://localhost:5000',
+        SERVICE_DISCOVERY_BASE_URL: 'http://localhost:8000'
       },
     },
   ],

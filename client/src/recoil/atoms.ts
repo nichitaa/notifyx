@@ -14,3 +14,8 @@ export const socketAtom = atom<Socket | undefined>({
   key: 'socketAtom',
   default: undefined,
 });
+
+export const avatarSrcAtom = atom<undefined | string>({
+  key: 'avatarSrcAtom',
+  default: undefined,
+});

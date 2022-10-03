@@ -1,6 +1,7 @@
 defmodule Acai.Services.Mailer do
   alias Acai.ServicesAgent
 
+  @recv_timeout 3000
   @send_email_endpoint "/api/send_mail"
 
   def send_email(socket, message, to) do

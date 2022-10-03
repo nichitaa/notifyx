@@ -2,21 +2,21 @@ defmodule AcaiWeb.NotificationChannel do
   # This `Channel` exists only for a single topic join
 
   use Phoenix.Channel, hibernate_after: :infinity
-  alias Acai.Services.Persist
+  alias Acai.Services
 
   intercept ["new_notification"]
 
   def join("notification:" <> topic_name, _message, socket) do
     # On `join` we create topic if it does not exist already
     # and subscribe user to the current topic
-    {topic_info_atom, topic} = Persist.create_topic_if_does_not_exist(socket, topic_name)
+    {topic_info_atom, topic} = Services.Persist.create_topic_if_does_not_exist(socket, topic_name)
 
     user_id = socket.assigns.user.user_id
 
     reply = %{from_join: true, can_broadcast: user_id == topic["created_by"]}
     socket = assign(socket, :topic_name, topic_name)
 
-    with {:ok, subscription} <- Persist.subscribe_user_to_topic(socket, topic["id"]) do
+    with {:ok, subscription} <- Services.Persist.subscribe_user_to_topic(socket, topic["id"]) do
       socket = assign(socket, :topic_id, subscription["topic_id"])
       {:ok, reply, socket}
     else
@@ -34,7 +34,7 @@ defmodule AcaiWeb.NotificationChannel do
     notification = Notification.new(message, from, to)
 
     response =
-      case Persist.create_notification(socket, notification) do
+      case Services.Persist.create_notification(socket, notification) do
         {:error, error} -> error
         {:ok, data} -> data
       end
@@ -47,13 +47,13 @@ defmodule AcaiWeb.NotificationChannel do
 
   def handle_in("own_notifications_for_topic", _payload, socket) do
     dbg("[IN] own_notifications_for_topic")
-    {:ok, notifications} = Persist.get_own_notifications(socket)
+    {:ok, notifications} = Services.Persist.get_own_notifications(socket)
     push(socket, "own_notifications_for_topic", %{success: true, notifications: notifications})
     {:noreply, socket}
   end
 
   def handle_in("send_email", %{"message" => message, "to" => to}, socket) do
-    mailer_response = Acai.Services.Mailer.send_email(socket, message, to)
+    mailer_response = Services.Mailer.send_email(socket, message, to)
 
     reply =
       case mailer_response do
@@ -62,6 +62,24 @@ defmodule AcaiWeb.NotificationChannel do
       end
 
     {:reply, {:ok, reply}, socket}
+  end
+
+  def handle_in(
+        "generate_avatar",
+        %{"size" => _size, "name" => _name, "type" => _type} = params,
+        socket
+      ) do
+    dbg("[IN] generate_avatar")
+    avatar_response = Services.Generator.generate_avatar(socket, params)
+
+    reply =
+      case avatar_response do
+        {:ok, body} -> {:binary, body} # :binary -> in client as `ArrayBuffer`
+        {:error, err_data} -> %{success: false, error: err_data}
+      end
+
+    push(socket, "generate_avatar", reply)
+    {:noreply, socket}
   end
 
   ##################################################################
@@ -88,6 +106,6 @@ defmodule AcaiWeb.NotificationChannel do
       other -> dbg("[TERMINATE] other #{inspect(other)}")
     end
 
-    Persist.unsubscribe_user_from_topic(socket)
+    Services.Persist.unsubscribe_user_from_topic(socket)
   end
 end

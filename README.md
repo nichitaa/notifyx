@@ -16,8 +16,8 @@
 * [`React/TS`](https://reactjs.org/) (client test application)
 * ...
 
-#### _[Naming is hard](https://quotesondesign.com/phil-karlton/)_
-Each service / component will be in a dedicated folder
+#### _[Naming is hard](https://quotesondesign.com/phil-karlton/)_ 
+Each service / component will be in a dedicated folder ⚙
 * [`acai`](./acai) - Gateway with Phoenix Channels (`port: 4000`)
 * [`durian`](./durian) - Auth Service (`port: 5000`)
 * [`kiwi`](./kiwi) - Persistent Service (`port: 6000`)
@@ -26,6 +26,34 @@ Each service / component will be in a dedicated folder
 * [`julik`](./julik) - Service Discovery (`port: 8000`)
 * [`nodex`](./nodex) - Service for generating random stuff (avatars FN) (`port:9000`)
 * ...
+
+### Dev Notes 👀
+```shell
+# 1. Start Gateway (acai)
+set PORT=4000&& iex --no-pry --sname gateway_node1 -S mix phx.server
+
+# 2. Start Service Discovery (julik)
+set PORT=8000&& iex --no-pry --sname discovery_node1 -S mix phx.server
+
+# 3. Start Auth Service (durian)
+set PORT=5000&& iex --no-pry --sname auth_node1 -S mix phx.server
+
+# 4. Start Persist Service (kiwi)
+set PORT=6000&& iex --no-pry --sname persist_node1 -S mix phx.server
+
+# 5. Start Mail Service Cluster (guava)
+set ENABLE_REST_API=1& set PORT=7000&& iex --no-pry --sname mail_node1 -S mix phx.server
+set PORT=7001&& iex --no-pry --sname mail_node2 -S mix phx.server
+set PORT=7002&& iex --no-pry --sname mail_node3 -S mix phx.server
+set PORT=7003&& iex --no-pry --sname mail_node4 -S mix phx.server
+
+# 6. Start Generator Service Cluster (nodex)
+npm run start:pm2
+# to stop: npm run del:pm2
+
+# 7. Start Client application (client)
+npm run dev
+```
 
 #### _What should be implemented (technically) ?_
 

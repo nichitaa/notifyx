@@ -1,4 +1,5 @@
 import {
+  alpha,
   Box,
   ButtonGroup,
   Divider,
@@ -11,12 +12,15 @@ import {
   TableRow,
   TextField,
   Tooltip,
+  Typography,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import { useState } from 'react';
+import { FC, useState } from 'react';
 import { usePhxSocket } from '../hooks/use-phx-socket';
 import SendIcon from '@mui/icons-material/Send';
 import EmailIcon from '@mui/icons-material/Email';
+import { useSetRecoilState } from 'recoil';
+import { avatarSrcAtom } from '../recoil/atoms';
 
 const channelPrefix = 'notification';
 
@@ -45,6 +49,7 @@ const JoinedChannelView = (props: MainProps) => {
   const [message, setMessage] = useState('default_message');
   const [toEmailAddress, setToEmailAddress] = useState('nichittaa@gmail.com');
   const [loadingSendEmail, setLoadingSendEmail] = useState(false);
+  const setAvatarSrc = useSetRecoilState(avatarSrcAtom);
 
   const broadcastNewNotification = () => {
     // @ts-ignore
@@ -77,6 +82,18 @@ const JoinedChannelView = (props: MainProps) => {
     }
   };
 
+  const handleGenerateAvatar = () => {
+    let msg = message.trim();
+    if (msg !== undefined) {
+      // @ts-ignore
+      broadcast('generate_avatar', {
+        size: 128,
+        name: msg,
+        type: 'github',
+      });
+    }
+  };
+
   const handleSubscribeToTopic = () => {
     if (topicName.trim() === '') return;
     const channelTopic = `${channelPrefix}:${topicName}`;
@@ -94,6 +111,13 @@ const JoinedChannelView = (props: MainProps) => {
       }
     });
 
+    channel.on('generate_avatar', (response) => {
+      if (response instanceof ArrayBuffer) {
+        const blob = new Blob([response]);
+        const url = URL.createObjectURL(blob);
+        setAvatarSrc(url);
+      }
+    });
     channel.on('new_notification', (response) => {
       console.log('[new_notification] response: ', response);
       setChannelNotifications((prev) => [...prev, response]);
@@ -134,14 +158,24 @@ const JoinedChannelView = (props: MainProps) => {
           onChange={(event) => setTopicName(event.target.value)}
         />
         {joinedChannel ? (
-          <LoadingButton
-            size={'medium'}
-            onClick={handleUnsubscribe}
-            variant={'outlined'}
-            color={'error'}
-          >
-            <code>unsubscribe</code>
-          </LoadingButton>
+          <ButtonGroup>
+            <LoadingButton
+              size={'medium'}
+              onClick={handleGenerateAvatar}
+              variant={'outlined'}
+              color={'warning'}
+            >
+              <code>generate avatar</code>
+            </LoadingButton>
+            <LoadingButton
+              size={'medium'}
+              onClick={handleUnsubscribe}
+              variant={'outlined'}
+              color={'error'}
+            >
+              <code>unsubscribe</code>
+            </LoadingButton>
+          </ButtonGroup>
         ) : (
           <LoadingButton
             disabled={loadingJoinChannel || joinedChannel}
@@ -156,8 +190,8 @@ const JoinedChannelView = (props: MainProps) => {
 
       {joinedChannel && (
         <>
-          <Divider textAlign={'left'} sx={{ m: '10px 0' }}>
-            Send notification for {`notification:${topicName.trim()}`}
+          <Divider textAlign={'left'} sx={{ m: '20px 0' }}>
+            <CodeStyles>notification:{topicName.trim()}</CodeStyles>
           </Divider>
           <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
             <TextField
@@ -205,17 +239,17 @@ const JoinedChannelView = (props: MainProps) => {
           <br />
           {/* OLD Notification */}
           <Divider textAlign={'left'} sx={{ m: '10px 0' }}>
-            Previous notifications
+            <CodeStyles>Previous</CodeStyles>
           </Divider>
           <TableContainer component={Paper} sx={{ maxHeight: 300 }}>
             <Table size={'small'} stickyHeader>
               <TableHead>
                 <TableRow>
+                  <TableCell>NotificationId</TableCell>
                   <TableCell>Topic</TableCell>
                   <TableCell>From</TableCell>
                   <TableCell>Notification</TableCell>
                   <TableCell>Status</TableCell>
-                  <TableCell>NotificationId</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -224,13 +258,13 @@ const JoinedChannelView = (props: MainProps) => {
                     key={row.notification_id}
                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                   >
+                    <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                      {row.notification_id}
+                    </TableCell>
                     <TableCell>{row.topic_name}</TableCell>
                     <TableCell>{row.from}</TableCell>
                     <TableCell>{row.message}</TableCell>
                     <TableCell>{row.status}</TableCell>
-                    <TableCell sx={{ whiteSpace: 'nowrap' }}>
-                      {row.notification_id}
-                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -239,7 +273,7 @@ const JoinedChannelView = (props: MainProps) => {
 
           {/* NEW Notifications */}
           <Divider textAlign={'left'} sx={{ m: '10px 0' }}>
-            New Notifications
+            <CodeStyles>New</CodeStyles>
           </Divider>
           <TableContainer component={Paper} sx={{ maxHeight: 300 }}>
             <Table size={'small'} stickyHeader>
@@ -267,6 +301,24 @@ const JoinedChannelView = (props: MainProps) => {
       )}
       <Divider textAlign={'left'} sx={{ m: '50px 0' }}></Divider>
     </>
+  );
+};
+
+const CodeStyles: FC = ({ children }) => {
+  return (
+    <Typography
+      component={'div'}
+      sx={{
+        background: alpha('#fff', 0.1),
+        padding: '3px',
+        border: (theme) =>
+          `2px solid ${alpha(theme.palette.primary.main, 0.3)}`,
+        textAlign: 'center',
+        borderRadius: 1,
+      }}
+    >
+      <code>{children}</code>
+    </Typography>
   );
 };
 

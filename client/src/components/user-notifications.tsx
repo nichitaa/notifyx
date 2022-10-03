@@ -1,4 +1,5 @@
 import {
+  Avatar,
   Box,
   BoxProps,
   Button,
@@ -9,7 +10,7 @@ import {
 } from '@mui/material';
 import { usePhxSocket } from '../hooks/use-phx-socket';
 import { useRecoilValue } from 'recoil';
-import { userCredentialsAtom } from '../recoil/atoms';
+import { avatarSrcAtom, userCredentialsAtom } from '../recoil/atoms';
 import JoinedChannelView from './joined-channel-view';
 import { useState } from 'react';
 import AddIcon from '@mui/icons-material/Add';
@@ -18,6 +19,7 @@ const UserNotifications = () => {
   const { disconnect } = usePhxSocket();
   const [topicsNo, setTopicsNo] = useState(1);
   const userCredentials = useRecoilValue(userCredentialsAtom);
+  const avatarSrc = useRecoilValue(avatarSrcAtom);
 
   return (
     <StyledUserNotificationBox>
@@ -29,6 +31,7 @@ const UserNotifications = () => {
           disabled
           value={userCredentials.email}
         />
+        <Avatar alt='Avatar' src={avatarSrc} />
         <ButtonGroup>
           <Button
             onClick={() => setTopicsNo((prev) => prev + 1)}
@@ -43,9 +46,7 @@ const UserNotifications = () => {
           </Button>
         </ButtonGroup>
       </Box>
-      <Divider textAlign={'left'} sx={{ m: '10px 0' }}>
-        Topics
-      </Divider>
+      <br/>
       {Array.from({ length: topicsNo }).map((_, i) => (
         <JoinedChannelView key={`topic_${i}`} defaultTopicName={`topic_${i}`} />
       ))}
