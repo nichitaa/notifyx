@@ -7,6 +7,7 @@
 #### _Tech Stack_
 
 * [`Elixir`](https://hexdocs.pm/elixir/Kernel.html)
+* [`NodeJS`](https://nodejs.org/en/) - [`expressjs`](https://expressjs.com/)
 * [`Phoenix`](https://hexdocs.pm/phoenix/overview.html) with [`Channels`](https://hexdocs.pm/phoenix/channels.html) - WS API for Gateway and REST API for dedicated
   services
 * [`Nebulex`](https://hexdocs.pm/nebulex/Nebulex.html) (for caching / service levels and gateway level)
@@ -23,6 +24,7 @@ Each service / component will be in a dedicated folder
 * [`client`](./client) - Client test application (`port: 3000`)
 * [`guava`](./guava) - Mailing Service (`port: 7000`)
 * [`julik`](./julik) - Service Discovery (`port: 8000`)
+* [`nodex`](./nodex) - Service for generating random stuff (avatars FN) (`port:9000`)
 * ...
 
 #### _What should be implemented (technically) ?_

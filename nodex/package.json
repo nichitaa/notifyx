@@ -1,0 +1,37 @@
+{
+  "name": "nodex",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/main.js",
+  "scripts": {
+    "dev": "nodemon src/main.js",
+    "dev:pm2": "pm2-dev src/main.js --name \"nodex-app\"",
+    "start:pm2": "pm2 start ecosystem.config.js",
+    "del:pm2": "pm2 delete ecosystem.config.js"
+  },
+  "keywords": [],
+  "author": "<nichittaa@gmail.com>",
+  "license": "ISC",
+  "prettier": {
+    "trailingComma": "es5",
+    "tabWidth": 2,
+    "printWidth": 80,
+    "semi": true,
+    "jsxSingleQuote": true,
+    "singleQuote": true,
+    "bracketSpacing": true,
+    "jsxBracketSameLine": false,
+    "arrowParens": "always"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20",
+    "pm2": "^5.2.0",
+    "prettier": "^2.7.1"
+  },
+  "dependencies": {
+    "avatar-builder": "^1.0.2",
+    "express": "^4.18.1",
+    "express-async-errors": "^3.1.1",
+    "node-fetch": "^2.6.7"
+  }
+}
