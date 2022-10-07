@@ -1,5 +1,6 @@
 defmodule Acai.Services.Auth do
   alias Acai.ServicesAgent
+  alias Acai.Utils.ReqUtils
 
   @recv_timeout 2000
   @login_endpoint "/api/users/login"
@@ -12,20 +13,26 @@ defmodule Acai.Services.Auth do
     options = get_options()
     body = Jason.encode!(%{email: email, password: password})
 
-    with {:ok, base_url} <- base_url(),
-         login_url <- base_url <> @login_endpoint,
-         response <- HTTPoison.post(login_url, body, headers, options),
-         {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- response,
-         %{"success" => true, "token" => token, "id" => user_id} <- Jason.decode!(body) do
-      user = %{
+    request_fn =
+      with {:ok, base_url} <- base_url(),
+           login_url <- base_url <> @login_endpoint do
+        {:ok, fn -> HTTPoison.post(login_url, body, headers, options) end}
+      end
+
+    response =
+      with {:ok, req_fn} <- request_fn do
+        ReqUtils.auto_retry(req_fn)
+      end
+
+    with {:ok, json} <- response,
+         %{"success" => true, "token" => token, "id" => user_id} = json do
+      %{
         email: email,
         user_id: user_id,
         token: token
       }
-
-      user
     else
-      _ -> nil
+      {:error, _error} -> nil
     end
   end
 
