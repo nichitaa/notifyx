@@ -26,6 +26,11 @@ defmodule JulikWeb.RegisterController do
     end
   end
 
+  def remove_service(conn, %{"service_name" => service_name}) do
+    ServicesAgent.remove_service(service_name)
+    json(conn, %{success: true, message: "service was successfully removed"})
+  end
+
   ## Privates
 
   defp gateway_register_service_url!(),

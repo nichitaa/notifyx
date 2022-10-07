@@ -1,5 +1,4 @@
 defmodule AcaiWeb do
-
   def controller do
     quote do
       use Phoenix.Controller, namespace: AcaiWeb

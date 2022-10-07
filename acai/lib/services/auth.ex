@@ -1,8 +1,10 @@
 defmodule Acai.Services.Auth do
   alias Acai.ServicesAgent
   alias Acai.Utils.ReqUtils
+  alias Acai.CircuitBreaker
 
   @recv_timeout 2000
+  @service_name "auth"
   @login_endpoint "/api/users/login"
   @get_users_endpoint "/api/users"
   @register_user_endpoint "/api/users"
@@ -13,18 +15,10 @@ defmodule Acai.Services.Auth do
     options = get_options()
     body = Jason.encode!(%{email: email, password: password})
 
-    request_fn =
-      with {:ok, base_url} <- base_url(),
-           login_url <- base_url <> @login_endpoint do
-        {:ok, fn -> HTTPoison.post(login_url, body, headers, options) end}
-      end
-
-    response =
-      with {:ok, req_fn} <- request_fn do
-        ReqUtils.auto_retry(req_fn)
-      end
-
-    with {:ok, json} <- response,
+    with {:ok, base_url} <- base_url(),
+         login_url <- base_url <> @login_endpoint,
+         request_fn <- fn -> HTTPoison.post(login_url, body, headers, options) end,
+         {:ok, json} <- ReqUtils.auto_retry(request_fn),
          %{"success" => true, "token" => token, "id" => user_id} = json do
       %{
         email: email,
@@ -32,7 +26,12 @@ defmodule Acai.Services.Auth do
         token: token
       }
     else
-      {:error, _error} -> nil
+      {:retry_error, _} ->
+        CircuitBreaker.add_service_error(@service_name)
+        nil
+
+      _ ->
+        nil
     end
   end
 
@@ -42,12 +41,17 @@ defmodule Acai.Services.Auth do
 
     with {:ok, base_url} <- base_url(),
          get_users_url <- base_url <> @get_users_endpoint,
-         response <- HTTPoison.get(get_users_url, headers, options),
-         {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- response,
-         %{"success" => true, "data" => data} <- Jason.decode!(body) do
+         request_fn <- fn -> HTTPoison.get(get_users_url, headers, options) end,
+         {:ok, json} <- ReqUtils.auto_retry(request_fn),
+         %{"success" => true, "data" => data} <- json do
       {:ok, data}
     else
-      error_data -> {:error, error_data}
+      {:retry_error, _} ->
+        CircuitBreaker.add_service_error(@service_name)
+        {:error, "could not receive from auth service"}
+
+      error_data ->
+        {:error, error_data}
     end
   end
 
@@ -58,18 +62,19 @@ defmodule Acai.Services.Auth do
 
     with {:ok, base_url} <- base_url(),
          register_user_endpoint <- base_url <> @register_user_endpoint,
-         response <- HTTPoison.post(register_user_endpoint, body, headers, options),
-         {:ok, %HTTPoison.Response{status_code: 201, body: body}} <- response,
-         %{"success" => true, "id" => user_id} <- Jason.decode!(body) do
+         request_fn <- fn -> HTTPoison.post(register_user_endpoint, body, headers, options) end,
+         {:ok, json} <- ReqUtils.auto_retry(request_fn),
+         %{"success" => true, "id" => user_id} <- json do
       {:ok, user_id}
     else
-      {:ok, %HTTPoison.Response{body: body}} ->
+      {:retry_error, _} ->
+        CircuitBreaker.add_service_error(@service_name)
+        {:error, "could not receive from auth service"}
+
+      {:error, %HTTPoison.Response{body: body}} ->
         {:error, Jason.decode!(body)}
 
-      {:error, %HTTPoison.Error{reason: :timeout}} ->
-        {:error, %{success: false, error: "timeout"}}
-
-      error_data ->
+      {:error, error_data} ->
         {:error, error_data}
     end
   end
@@ -84,5 +89,5 @@ defmodule Acai.Services.Auth do
       "durian-token": socket.assigns.user.token
     ]
 
-  defp base_url(), do: ServicesAgent.get_service_address("auth")
+  defp base_url(), do: ServicesAgent.get_service_address(@service_name)
 end

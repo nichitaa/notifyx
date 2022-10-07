@@ -28,7 +28,7 @@ defmodule Kiwi.ServiceStarter do
 
     with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- response,
          %{"success" => true} <- Jason.decode!(body) do
-      dbg("successfully registered")
+      dbg("successfully registered [persist]")
     else
       _ -> schedule(timeout)
     end

@@ -1,5 +1,16 @@
 import Config
 
+config :acai,
+  service_discovery_base_url: "http://localhost:8000"
+
+config :acai, Acai.CircuitBreaker,
+  # seconds
+  reset_timeout: 5,
+  # service_name: threshold (nr of 500/timeout service responses per timeframe)
+  auth: 100,
+  mail: 100,
+  persist: 200
+
 # Configures the endpoint
 config :acai, AcaiWeb.Endpoint,
   url: [host: "localhost"],

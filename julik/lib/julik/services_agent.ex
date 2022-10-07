@@ -11,5 +11,8 @@ defmodule Julik.ServicesAgent do
   def get_service_address(name) when is_binary(name),
     do: Agent.get(__MODULE__, &Map.fetch(&1, name))
 
+  def remove_service(name) when is_binary(name),
+    do: Agent.update(__MODULE__, &Map.delete(&1, name))
+
   def get_all(), do: Agent.get(__MODULE__, & &1)
 end

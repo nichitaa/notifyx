@@ -9,7 +9,8 @@ defmodule AcaiWeb.NotificationSocket do
       socket = assign(socket, :user, user)
       {:ok, socket}
     else
-      _ -> :error
+      _ ->
+        {:error, %{reason: "could not authenticate user"}}
     end
   end
 

@@ -14,7 +14,6 @@ defmodule Acai.Services.Generator do
          generate_avatar_url <- base_url <> @generate_avatar_endpoint,
          response <- HTTPoison.get(generate_avatar_url, headers, options),
          {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- response do
-      dbg(body)
       {:ok, body}
     else
       error_data -> {:error, error_data}

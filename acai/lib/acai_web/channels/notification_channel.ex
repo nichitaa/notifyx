@@ -74,7 +74,8 @@ defmodule AcaiWeb.NotificationChannel do
 
     reply =
       case avatar_response do
-        {:ok, body} -> {:binary, body} # :binary -> in client as `ArrayBuffer`
+        # :binary -> in client as `ArrayBuffer`
+        {:ok, body} -> {:binary, body}
         {:error, err_data} -> %{success: false, error: err_data}
       end
 

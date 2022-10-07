@@ -27,7 +27,7 @@ defmodule Durian.ServiceStarter do
 
     with {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- response,
          %{"success" => true} <- Jason.decode!(body) do
-      dbg("successfully registered")
+      dbg("successfully registered [auth]")
     else
       _ -> schedule(timeout)
     end

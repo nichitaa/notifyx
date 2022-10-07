@@ -8,30 +8,41 @@ defmodule Acai.Utils.ReqUtils do
   defp auto_retry_poison_request(req_fn, number_of_retries, current_retry_no \\ 1) do
     response =
       case req_fn.() do
-        {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-          json = Jason.decode!(body)
-          {:ok, json}
+        {:ok, %HTTPoison.Response{} = res} ->
+          handle_poison_ok(res)
 
-        {:ok, %HTTPoison.Response{status_code: 500} = error_response} ->
-          {:error, error_response}
-
-        {:error, error} ->
-          {:error, error}
-
-        _ ->
-          {:error, "unhandled error"}
+        {:error, %HTTPoison.Error{} = res} ->
+          {:retry, res}
       end
 
     case response do
-      {:ok, success_json} ->
-        {:ok, success_json}
-
-      {:error, error_response} ->
+      {:retry, error_response} ->
         if current_retry_no >= number_of_retries do
-          {:error, error_response}
+          {:retry_error, error_response}
         else
           auto_retry_poison_request(req_fn, number_of_retries, current_retry_no + 1)
         end
+
+      {:ok, ok_response} ->
+        {:ok, ok_response}
+
+      {:error, error_response} ->
+        {:error, error_response}
+    end
+  end
+
+  defp handle_poison_ok(%HTTPoison.Response{} = response) do
+    case response do
+      %HTTPoison.Response{status_code: status_code, body: body}
+      when status_code in 200..300 ->
+        json = Jason.decode!(body)
+        {:ok, json}
+
+      %HTTPoison.Response{status_code: 500} = error_response ->
+        {:retry, error_response}
+
+      _ ->
+        {:error, response}
     end
   end
 end

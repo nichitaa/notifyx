@@ -9,6 +9,7 @@ defmodule JulikWeb.Router do
     pipe_through :api
     post "/register", RegisterController, :register
     get "/service_address/:service_name", RegisterController, :get_service_address
+    delete "/:service_name", RegisterController, :remove_service
   end
 
   if Mix.env() in [:dev, :test] do
