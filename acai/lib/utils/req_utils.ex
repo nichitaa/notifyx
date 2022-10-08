@@ -35,8 +35,18 @@ defmodule Acai.Utils.ReqUtils do
     case response do
       %HTTPoison.Response{status_code: status_code, body: body}
       when status_code in 200..300 ->
-        json = Jason.decode!(body)
-        {:ok, json}
+        map = Enum.into(response.headers, %{}, fn {k, v} -> {String.downcase(k), v} end)
+
+        content_type = Map.get(map, "content-type", "")
+
+        reply_data =
+          if String.contains?(content_type, "application/json") do
+            Jason.decode!(body)
+          else
+            body
+          end
+
+        {:ok, reply_data}
 
       %HTTPoison.Response{status_code: 500} = error_response ->
         {:retry, error_response}

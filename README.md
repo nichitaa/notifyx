@@ -12,10 +12,9 @@
   API for Gateway and REST API for dedicated
   services
 * [`Nebulex`](https://hexdocs.pm/nebulex/Nebulex.html) (for caching / service levels and gateway level)
-* `Postgres` (will use [`Ecto`](https://hexdocs.pm/ecto/Ecto.html) as db wrapper
+* [`Postgres`](https://www.postgresql.org/) (will use [`Ecto`](https://hexdocs.pm/ecto/Ecto.html) as db wrapper
   with [`postrex`](https://github.com/elixir-ecto/postgrex) adapter)
 * [`React/TS`](https://reactjs.org/) (client test application)
-* ...
 
 #### _[Naming is hard](https://quotesondesign.com/phil-karlton/)_
 
@@ -28,7 +27,6 @@ Each service / component will be in a dedicated folder ⚙
 * [`guava`](./guava) - Mailing Service (`port: 7000`)
 * [`julik`](./julik) - Service Discovery (`port: 8000`)
 * [`nodex`](./nodex) - Service for generating random stuff (avatars FN) (`port:9000`)
-* ...
 
 ### Dev Notes 👀
 
@@ -69,13 +67,13 @@ Service Features:
 * Service Discovery - [`julik`](./julik)
 * RPC - Mailing service Nodes communicates via [`:erpc`](https://www.erlang.org/doc/man/erpc.html)
 * Concurrent task limit - `DynamicSupervisor` for mail workers has a `max_children`
-  configured [here](./guava/config/config.exs)
+  configured <sup>[link](./guava/config/config.exs)</sup>
 
 Gateway Features:
 
 * Load Balancing - Round Robin
 * Outbound WS API
-*
+* Circuit breaker <sup>[link](./acai/lib/acai/circuit_breaker.ex)</sup>
 
 The Cache:
 

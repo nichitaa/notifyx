@@ -9,6 +9,7 @@ config :acai, Acai.CircuitBreaker,
   # service_name: threshold (nr of 500/timeout service responses per timeframe)
   auth: 100,
   mail: 100,
+  generator: 100,
   persist: 200
 
 # Configures the endpoint

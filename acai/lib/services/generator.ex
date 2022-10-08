@@ -1,7 +1,10 @@
 defmodule Acai.Services.Generator do
   alias Acai.ServicesAgent
+  alias Acai.Utils.ReqUtils
+  alias Acai.CircuitBreaker
 
   @recv_timeout 1000
+  @service_name "generator"
   @generate_avatar_endpoint "/api/avatar"
 
   def generate_avatar(socket, %{"size" => size, "name" => name, "type" => type}) do
@@ -12,11 +15,16 @@ defmodule Acai.Services.Generator do
 
     with {:ok, base_url} <- base_url(),
          generate_avatar_url <- base_url <> @generate_avatar_endpoint,
-         response <- HTTPoison.get(generate_avatar_url, headers, options),
-         {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- response do
-      {:ok, body}
+         request_fn <- fn -> HTTPoison.get(generate_avatar_url, headers, options) end,
+         {:ok, binary_png} <- ReqUtils.auto_retry(request_fn) do
+      {:ok, binary_png}
     else
-      error_data -> {:error, error_data}
+      {:retry_error, _} ->
+        CircuitBreaker.add_service_error(@service_name)
+        {:error, "Generator service error"}
+
+      _ ->
+        {:error, "Could not generate PNG avatar"}
     end
   end
 
@@ -24,10 +32,7 @@ defmodule Acai.Services.Generator do
 
   defp base_url(), do: ServicesAgent.get_service_address("generator")
 
-  defp get_headers(socket),
-    do: [
-      "durian-token": socket.assigns.user.token
-    ]
+  defp get_headers(socket), do: ["durian-token": socket.assigns.user.token]
 
   defp get_options(), do: [recv_timeout: @recv_timeout]
 end
