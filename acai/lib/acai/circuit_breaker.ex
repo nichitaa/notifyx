@@ -1,9 +1,4 @@
 defmodule Acai.CircuitBreaker do
-  @moduledoc """
-  Acai.CircuitBreaker.add_service_error("auth")
-  Acai.CircuitBreaker.get
-  """
-
   alias Acai.ServicesAgent
   use GenServer
 
