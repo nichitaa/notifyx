@@ -1,5 +1,6 @@
 import Config
 
-config :julik, JulikWeb.Endpoint, cache_static_manifest: "priv/static/cache_manifest.json"
+config :julik,
+  gateway_base_url: "http://acai:4000"
 
 config :logger, level: :info

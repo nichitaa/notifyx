@@ -7,16 +7,13 @@ end
 if config_env() == :prod do
   secret_key_base =
     System.get_env("SECRET_KEY_BASE") ||
-      raise """
-      environment variable SECRET_KEY_BASE is missing.
-      You can generate one by calling: mix phx.gen.secret
-      """
+      "Mh1ENB0Sqa/QHLUx1umXWvnvmBNayZxBWucJR5kTGJKonJxXzMndIEOtvyYMJjhK"
 
-  host = System.get_env("PHX_HOST") || "example.com"
+  # host = System.get_env("PHX_HOST") || "example.com"
   port = String.to_integer(System.get_env("PORT") || "8000")
 
   config :julik, JulikWeb.Endpoint,
-    url: [host: host, port: 443, scheme: "https"],
+    # url: [host: host, port: 443, scheme: "https"],
     http: [
       ip: {0, 0, 0, 0, 0, 0, 0, 0},
       port: port

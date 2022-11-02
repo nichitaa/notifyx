@@ -1,4 +1,4 @@
 export const config = {
-  APIGatewayBaseUrl: 'http://localhost:4000',
-  WSGatewayBaseUrl: 'ws://localhost:4000/socket',
+  APIGatewayBaseUrl: `http://${import.meta.env.VITE_GATEWAY_HOST_PORT}`,
+  WSGatewayBaseUrl: `ws://${import.meta.env.VITE_GATEWAY_HOST_PORT}/socket`,
 } as const;
