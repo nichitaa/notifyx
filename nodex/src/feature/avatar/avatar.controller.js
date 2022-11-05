@@ -11,6 +11,7 @@ class AvatarController {
       ? params.type
       : 'github';
     const name = params.name || crypto.randomBytes(10).toString('hex');
+    console.log(`[PID=${process.pid}] will generate avatar for name: ${name}`);
 
     let builder;
     switch (type) {
@@ -33,6 +34,7 @@ class AvatarController {
   };
 
   hardWorkBlockMainThread = (req, res) => {
+    console.log(`[PID=${process.pid}] will do the hard work`);
     for (let i = 0; i < 5000000000; i++) {}
     res.send({ success: true, from: process.pid, count: 0 });
   };

@@ -8,9 +8,15 @@ module.exports = {
       env: {
         PORT: 9000,
         NODE_ENV: 'development',
-        AUTH_SERVICE_BASE_URL: 'http://localhost:5000',
-        SERVICE_DISCOVERY_BASE_URL: 'http://localhost:8000'
+        SERVICE_DISCOVERY_BASE_URL: 'http://localhost:8000',
+        SERVICE_NETWORK: 'localhost', // for Service Discovery registration
       },
+      env_production: {
+        PORT: 9000,
+        NODE_ENV: 'production',
+        SERVICE_DISCOVERY_BASE_URL: 'http://julik:8000',
+        SERVICE_NETWORK: 'nodex' // docker container name
+      }
     },
   ],
 };

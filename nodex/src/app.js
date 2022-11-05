@@ -8,7 +8,7 @@ require('express-async-errors');
 class App {
   PORT = parseInt(process.env.PORT || '9000');
   SERVICE_DISCOVERY_BASE_URL =
-    process.env.SERVICE_DISCOVERY_BASE_URL || 'http://localhost:8000';
+    process.env.SERVICE_DISCOVERY_BASE_URL;
 
   constructor() {
     this.app = express();
@@ -52,9 +52,9 @@ class App {
         },
         body: JSON.stringify({
           service: 'generator',
-          address: `http://localhost:${listener.address().port}`,
+          address: `http://${process.env.SERVICE_NETWORK}:${listener.address().port}`,
         }),
-      }
+      },
     )
       .then((res) => res.json())
       .catch((err) => {
@@ -67,13 +67,13 @@ class App {
       console.log('Retrying to register after 1 sec!');
       setTimeout(() => {
         this.register(listener);
-      }, 1000);
+      }, 2000);
     }
   };
 
   start = () => {
     const listener = this.app.listen(this.PORT, () => {
-      console.log(`App listening on port ${this.PORT}`);
+      console.log(`[PID=${process.pid}] App listening on port ${this.PORT}`);
       this.register(listener);
     });
   };

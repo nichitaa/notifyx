@@ -36,6 +36,8 @@ services:
     environment:
       PORT: 8000
       MIX_ENV: prod
+    depends_on:
+      - acai
 
   # Durian (Auth Service)
   durian:
@@ -55,6 +57,19 @@ services:
       PGPORT: 5432
     depends_on:
       - durian_postgres
+      - julik
+
+  # Nodex (Generator Service)
+  nodex:
+    container_name: nodex
+    build:
+      context: ./nodex
+      dockerfile: Dockerfile
+    ports:
+      - '9000:9000'
+    depends_on:
+      - julik
+      - durian
 
   # Durian Postgres DB (for Auth Service)
   durian_postgres:
@@ -67,7 +82,7 @@ services:
 #    volumes:
 #      - ./docker-volumes/postgres-data:/var/lib/postgresql/data
 
-  # Kiwi (Persist Service)
+#   Kiwi (Persist Service)
   kiwi:
     container_name: kiwi
     build:
