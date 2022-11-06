@@ -1,0 +1,15 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+
+  # monitor itself (Prometheus actual server)
+  - job_name: 'prometheus'
+    scrape_interval: 5s
+    static_configs:
+      - targets: [ 'prometheus:9090' ]
+
+  # monitor API Gateway (Acai)
+  - job_name: 'acai_gateway'
+    static_configs:
+      - targets: [ 'host.docker.internal:4000' ]

@@ -16,8 +16,7 @@ defmodule Acai.PromEx do
   @impl true
   def dashboard_assigns do
     [
-      datasource_id: "prometheus",
-      default_selected_interval: "15s"
+      datasource_id: "prometheus"
     ]
   end
 

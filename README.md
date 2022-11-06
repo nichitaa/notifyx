@@ -37,12 +37,22 @@ Each service / component will be in a dedicated folder ⚙
 #### Docker setup
 
 ```shell
-docker compose up --build
+docker compose up --build --force-recreate
+```
+
+```shell
+# clean-up previous instances (PowerShell)
+docker rm -f $(docker ps -a -q)
+docker volume rm $(docker volume ls -q)
 ```
 
 #### Manual setup
 
-Prerequisites: Should start Grafana & Prometheus instances on above ports
+Start Grafana & Prometheus Stack as separate Docker containers
+```shell
+cd monitoring\local
+docker compose up --build
+```
 
 ```shell
 # 1. Start Gateway (acai)
@@ -64,7 +74,7 @@ cd guava && set PORT=7002&& iex --no-pry --sname mail_node3 -S mix phx.server
 cd guava && set PORT=7003&& iex --no-pry --sname mail_node4 -S mix phx.server
 
 # 6. Start Generator Service Cluster (nodex)
-cd nodex && npm run start:pm2
+cd nodex && npm run dev:pm2
 # to stop: npm run del:pm2
 
 # 7. Start Client application (client)

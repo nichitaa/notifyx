@@ -14,11 +14,11 @@ services:
     ports:
       - '9090:9090'
     volumes:
-      - ./prometheus_grafana/:/etc/prometheus/ # Add content under `prometheus_grafana` to `/etc/prometheus/` host folder
+      - ./monitoring/prod/prometheus.yml/:/etc/prometheus/prometheus.yml # config file
       - prometheus-data:/prometheus
     restart: unless-stopped
     command:
-      - '--config.file=/etc/prometheus/config/prometheus.yml'
+      - '--config.file=/etc/prometheus/prometheus.yml'
 
   grafana:
     image: grafana/grafana-oss:latest
@@ -27,9 +27,9 @@ services:
       - '3000:3000'
     volumes:
       - grafana-data:/var/lib/grafana
-      - ./prometheus_grafana/grafana/:/etc/grafana/provisioning/
+      - ./monitoring/prod/grafana/:/etc/grafana/provisioning/
     env_file:
-      - ./prometheus_grafana/grafana/.env
+      - ./monitoring/prod/grafana/.env
     depends_on:
       - prometheus
 
