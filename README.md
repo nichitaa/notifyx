@@ -15,6 +15,8 @@
 * [`Postgres`](https://www.postgresql.org/) (will use [`Ecto`](https://hexdocs.pm/ecto/Ecto.html) as db wrapper
   with [`postrex`](https://github.com/elixir-ecto/postgrex) adapter)
 * [`React/TS`](https://reactjs.org/) (client test application)
+* [`Prometheus`](https://prometheus.io/docs/introduction/overview/) (for metrics scraping)
+* [`Grafana`](https://grafana.com/docs/) (for visual metrics monitoring)
 
 #### _[Naming is hard](https://quotesondesign.com/phil-karlton/)_
 
@@ -23,12 +25,24 @@ Each service / component will be in a dedicated folder ⚙
 * [`acai`](./acai) - Gateway with Phoenix Channels (`port: 4000`)
 * [`durian`](./durian) - Auth Service (`port: 5000`)
 * [`kiwi`](./kiwi) - Persistent Service (`port: 6000`)
-* [`client`](./client) - Client test application (`port: 3000`)
+* [`client`](./client) - Client test application (`port: 3333`)
 * [`guava`](./guava) - Mailing Service (`port: 7000`)
 * [`julik`](./julik) - Service Discovery (`port: 8000`)
 * [`nodex`](./nodex) - Service for generating random stuff (avatars FN) (`port:9000`)
+* [`prometheus_grafana`](./prometheus_grafana) - Monitoring tools configuration (grafana - `port: 3000`,
+  prometheus: `port: 9090`)
 
 ### Dev Notes 👀
+
+#### Docker setup
+
+```shell
+docker compose up --build
+```
+
+#### Manual setup
+
+Prerequisites: Should start Grafana & Prometheus instances on above ports
 
 ```shell
 # 1. Start Gateway (acai)

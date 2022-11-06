@@ -1,15 +1,48 @@
 version: "3"
 
+volumes:
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
+
 services:
-  
+
+  prometheus:
+    container_name: prometheus
+    image: prom/prometheus:v2.30.3
+    ports:
+      - '9090:9090'
+    volumes:
+      - ./prometheus_grafana/:/etc/prometheus/ # Add content under `prometheus_grafana` to `/etc/prometheus/` host folder
+      - prometheus-data:/prometheus
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/config/prometheus.yml'
+
+  grafana:
+    image: grafana/grafana-oss:latest
+    container_name: grafana
+    ports:
+      - '3000:3000'
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./prometheus_grafana/grafana/:/etc/grafana/provisioning/
+    env_file:
+      - ./prometheus_grafana/grafana/.env
+    depends_on:
+      - prometheus
+
   # Client Application
   client:
     container_name: client
     build:
       context: ./client
       dockerfile: Dockerfile
+    environment:
+      PORT: 3333
     ports:
-      - '3000:3000'
+      - '3333:3333'
     depends_on:
       - acai
 
@@ -24,6 +57,9 @@ services:
     environment:
       PORT: 4000
       MIX_ENV: prod
+    depends_on:
+      - prometheus
+      - grafana
 
   # Julik (Service Discovery)
   julik:
@@ -79,10 +115,10 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     restart: always
-#    volumes:
-#      - ./docker-volumes/postgres-data:/var/lib/postgresql/data
+  #    volumes:
+  #      - ./docker-volumes/postgres-data:/var/lib/postgresql/data
 
-#   Kiwi (Persist Service)
+  # Kiwi (Persist Service)
   kiwi:
     container_name: kiwi
     build:
@@ -100,6 +136,7 @@ services:
       PGPORT: 5432
     depends_on:
       - kiwi_postgres
+      - julik
 
   # Kiwi Postgres DB (for Persist Service)
   kiwi_postgres:

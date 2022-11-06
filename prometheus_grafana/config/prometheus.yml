@@ -1,0 +1,17 @@
+global:
+  scrape_interval: 15s # By default, scrape targets every 15 seconds.
+
+# A scrape configuration containing exactly one endpoint to scrape:
+scrape_configs:
+
+  # monitor itself (Prometheus actual server)
+  - job_name: 'prometheus'
+    scrape_interval: 5s
+    static_configs:
+      # `prometheus` - network name (from Docker compose), `localhost` - for local
+      - targets: [ 'prometheus:9090' ]
+
+  # monitor API Gateway (Acai)
+  - job_name: 'acai_gateway'
+    static_configs:
+      - targets: ['acai:4000']

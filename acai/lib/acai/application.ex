@@ -6,6 +6,7 @@ defmodule Acai.Application do
   @impl true
   def start(_type, _args) do
     children = [
+      Acai.PromEx,
       Acai.CircuitBreaker,
       {Acai.ServicesAgent, %{}},
       AcaiWeb.Telemetry,

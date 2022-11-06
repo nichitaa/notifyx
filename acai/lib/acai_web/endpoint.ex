@@ -17,9 +17,12 @@ defmodule AcaiWeb.Endpoint do
     plug Phoenix.CodeReloader
   end
 
+
   plug Phoenix.LiveDashboard.RequestLogger,
     param_key: "request_logger",
     cookie_key: "request_logger"
+
+  plug PromEx.Plug, prom_ex_module: Acai.PromEx
 
   plug Plug.RequestId
   plug Plug.Telemetry, event_prefix: [:phoenix, :endpoint]
@@ -32,7 +35,7 @@ defmodule AcaiWeb.Endpoint do
   plug Plug.MethodOverride
   plug Plug.Head
   plug Plug.Session, @session_options
-  # origin: "http://127.0.0.1:3000" would be a more secure option
+  # origin: "http://127.0.0.1:3333" would be a more secure option
   plug CORSPlug, origin: "*"
   plug AcaiWeb.Router
 end

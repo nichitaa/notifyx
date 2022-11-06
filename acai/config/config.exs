@@ -12,6 +12,18 @@ config :acai, Acai.CircuitBreaker,
   generator: 100,
   persist: 200
 
+config :acai, Acai.PromEx,
+  manual_metrics_start_delay: :no_delay,
+  drop_metrics_groups: [],
+  grafana: [
+    host: "http://localhost:3000", # Grafana host
+    username: "admin",
+    password: "admin",
+    upload_dashboards_on_start: true,
+    folder_name: "Acai (gateway-dev) Dashboards",
+    annotate_app_lifecycle: true
+  ]
+
 # Configures the endpoint
 config :acai, AcaiWeb.Endpoint,
   url: [host: "localhost"],
