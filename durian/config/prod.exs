@@ -6,6 +6,18 @@ config :durian,
   auth_header_key: "durian-token",
   service_discovery_base_url: "http://julik:8000"
 
+config :durian, Durian.PromEx,
+  manual_metrics_start_delay: :no_delay,
+  drop_metrics_groups: [],
+  grafana: [
+    host: "http://grafana:3000",
+    username: "admin",
+    password: "admin",
+    upload_dashboards_on_start: true,
+    folder_name: "Durian (durian-service-prod) Dashboards",
+    annotate_app_lifecycle: true
+  ]
+
 # Configure your database
 config :durian, Durian.Repo,
   username: System.get_env("PGUSER"),

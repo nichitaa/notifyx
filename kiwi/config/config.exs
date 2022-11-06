@@ -5,6 +5,19 @@ config :kiwi,
   generators: [binary_id: true],
   service_discovery_base_url: "http://localhost:8000"
 
+config :kiwi, Kiwi.PromEx,
+  manual_metrics_start_delay: :no_delay,
+  drop_metrics_groups: [],
+  grafana: [
+    # Grafana host
+    host: "http://localhost:3000",
+    username: "admin",
+    password: "admin",
+    upload_dashboards_on_start: true,
+    folder_name: "Kiwi (persist-service-dev) Dashboards",
+    annotate_app_lifecycle: true
+  ]
+
 config :kiwi, Kiwi.Cache,
   # GC interval for pushing new generation: 12 hrs
   gc_interval: :timer.hours(12),

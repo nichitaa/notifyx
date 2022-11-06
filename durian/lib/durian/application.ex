@@ -6,6 +6,7 @@ defmodule Durian.Application do
   @impl true
   def start(_type, _args) do
     children = [
+      Durian.PromEx,
       Durian.Cache,
       Durian.Repo,
       DurianWeb.Telemetry,

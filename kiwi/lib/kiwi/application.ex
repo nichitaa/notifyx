@@ -6,6 +6,7 @@ defmodule Kiwi.Application do
   @impl true
   def start(_type, _args) do
     children = [
+      Kiwi.PromEx,
       Kiwi.Cache,
       Kiwi.Repo,
       KiwiWeb.Telemetry,

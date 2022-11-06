@@ -29,26 +29,28 @@ Each service / component will be in a dedicated folder ⚙
 * [`guava`](./guava) - Mailing Service (`port: 7000`)
 * [`julik`](./julik) - Service Discovery (`port: 8000`)
 * [`nodex`](./nodex) - Service for generating random stuff (avatars FN) (`port:9000`)
-* [`prometheus_grafana`](./prometheus_grafana) - Monitoring tools configuration (grafana - `port: 3000`,
-  prometheus: `port: 9090`)
+* [`monitoring`](./monitoring) - Monitoring tools configuration (grafana - `port: 3000`,
+  prometheus: `port: 9090`) - [Dashboards screenshots](./monitoring/README.md)
 
 ### Dev Notes 👀
 
-#### Docker setup
+#### Docker setup 🐳
 
 ```shell
 docker compose up --build --force-recreate
 ```
 
 ```shell
-# clean-up previous instances (PowerShell)
+# For cleaning up previous Docker images/containers/volumes (run in PowerShell)
+# Don't need to run them on first setup
+docker rmi -f $(docker images -aq)
 docker rm -f $(docker ps -a -q)
 docker volume rm $(docker volume ls -q)
 ```
 
-#### Manual setup
+#### Manual setup ⚙
 
-Start Grafana & Prometheus Stack as separate Docker containers
+[Start Grafana & Prometheus Stack as separate Docker containers](./monitoring/README.md)
 ```shell
 cd monitoring\local
 docker compose up --build

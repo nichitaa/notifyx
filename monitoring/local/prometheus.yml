@@ -13,3 +13,13 @@ scrape_configs:
   - job_name: 'acai_gateway'
     static_configs:
       - targets: [ 'host.docker.internal:4000' ]
+
+  # monitor Auth Service (Durian)
+  - job_name: 'durian_auth'
+    static_configs:
+      - targets: [ 'host.docker.internal:5000' ]
+
+  # monitor Persist Service (Kiwi)
+  - job_name: 'kiwi_persist'
+    static_configs:
+      - targets: [ 'host.docker.internal:6000' ]

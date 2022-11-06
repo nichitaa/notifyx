@@ -46,7 +46,8 @@ defmodule Durian.MixProject do
       {:nebulex, "~> 2.3"},
       {:decorator, "~> 1.4"},
       {:accessible, "~> 0.3.0"},
-      {:httpoison, "~> 1.8"}
+      {:httpoison, "~> 1.8"},
+      {:prom_ex, "~> 1.7.1"}
     ]
   end
 
