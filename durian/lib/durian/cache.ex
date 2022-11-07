@@ -1,7 +1,12 @@
 defmodule Durian.Cache do
   use Nebulex.Cache,
     otp_app: :durian,
-    adapter: Nebulex.Adapters.Local
+    # Replicate cache across all cluster nodes
+    adapter: Nebulex.Adapters.Replicated,
+    # Local adapter to store a cache replica
+    primary_storage_adapter: Nebulex.Adapters.Local
+
+  # To list all `Durian.Cache` module nodes: `Durian.Cache.nodes()`
 
   alias Durian.Repo
   alias Durian.Auth.User

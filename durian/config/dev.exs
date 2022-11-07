@@ -22,6 +22,13 @@ config :durian, DurianWeb.Endpoint,
   secret_key_base: "IR126AswpfmxyPD8Hd01Lq+jKKxQIrdEDo9UZi6WatpL04OsGXeuGrTUTLB21wop",
   watchers: []
 
+config :libcluster,
+  topologies: [
+    durian: [
+      strategy: Cluster.Strategy.LocalEpmd
+    ]
+  ]
+
 # Do not include metadata nor timestamps in development logs
 config :logger, :console, format: "[$level] $message\n"
 

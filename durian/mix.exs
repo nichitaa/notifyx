@@ -47,7 +47,8 @@ defmodule Durian.MixProject do
       {:decorator, "~> 1.4"},
       {:accessible, "~> 0.3.0"},
       {:httpoison, "~> 1.8"},
-      {:prom_ex, "~> 1.7.1"}
+      {:prom_ex, "~> 1.7.1"},
+      {:libcluster, "~> 3.3"}
     ]
   end
 

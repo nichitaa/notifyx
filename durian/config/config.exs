@@ -20,6 +20,8 @@ config :durian, Durian.PromEx,
   ]
 
 config :durian, Durian.Cache,
+  stats: true,
+  telemetry: true,
   # GC interval for pushing new generation: 12 hrs
   gc_interval: :timer.hours(12),
   # Max 1 million entries in cache

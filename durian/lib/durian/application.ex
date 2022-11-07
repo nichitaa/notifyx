@@ -5,9 +5,12 @@ defmodule Durian.Application do
 
   @impl true
   def start(_type, _args) do
+    topologies = Application.get_env(:libcluster, :topologies, [])
+
     children = [
+      {Cluster.Supervisor, [topologies, [name: Durian.ClusterSupervisor]]},
       Durian.PromEx,
-      Durian.Cache,
+      {Durian.Cache, []},
       Durian.Repo,
       DurianWeb.Telemetry,
       {Phoenix.PubSub, name: Durian.PubSub},

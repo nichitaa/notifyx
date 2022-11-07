@@ -65,6 +65,7 @@ cd julik && set PORT=8000&& iex --no-pry --sname discovery_node1 -S mix phx.serv
 
 # 3. Start Auth Service (durian)
 cd durian && set PORT=5000&& iex --no-pry --sname auth_node1 -S mix phx.server
+cd durian && set PORT=5001&& iex --no-pry --sname auth_node2 -S mix phx.server
 
 # 4. Start Persist Service (kiwi)
 cd kiwi && set PORT=6000&& iex --no-pry --sname persist_node1 -S mix phx.server
