@@ -8,6 +8,70 @@ volumes:
 
 services:
 
+  # Guava Cluster (4 Nodes - 1 REST API - 3 RPC) - Mailer Service
+  # Master Node (exposes REST API)
+  guava:
+    container_name: guava
+    build:
+      context: ./guava
+      dockerfile: Dockerfile
+    hostname: "node0.guava"
+    environment:
+      PORT: 7000
+      MIX_ENV: prod
+      ENABLE_REST_API: 1
+      COOKIE: foobar
+      ERLANG_COOKIE: foobar
+      RELEASE_NODE: guava@node0.guava
+    ports:
+      - '7000:7000'
+
+  # 3 Additional Nodes (Master communicates with them via RPC)
+  guava_1:
+    container_name: guava_1
+    build:
+      context: ./guava
+      dockerfile: Dockerfile
+    hostname: "node1.guava"
+    environment:
+      PORT: 7001
+      MIX_ENV: prod
+      COOKIE: foobar
+      ERLANG_COOKIE: foobar
+      RELEASE_NODE: guava@node1.guava
+    ports:
+      - '7001:7001'
+
+  guava_2:
+    container_name: guava_2
+    build:
+      context: ./guava
+      dockerfile: Dockerfile
+    hostname: "node2.guava"
+    environment:
+      PORT: 7002
+      MIX_ENV: prod
+      COOKIE: foobar
+      ERLANG_COOKIE: foobar
+      RELEASE_NODE: guava@node2.guava
+    ports:
+      - '7002:7002'
+
+  guava_3:
+    container_name: guava_3
+    build:
+      context: ./guava
+      dockerfile: Dockerfile
+    hostname: "node3.guava"
+    environment:
+      PORT: 7003
+      MIX_ENV: prod
+      COOKIE: foobar
+      ERLANG_COOKIE: foobar
+      RELEASE_NODE: guava@node3.guava
+    ports:
+      - '7003:7003'
+
   prometheus:
     container_name: prometheus
     image: prom/prometheus:v2.30.3

@@ -14,7 +14,10 @@ defmodule Guava.Balancer do
 
   @impl true
   def handle_call(:next_node, _from, counter) do
-    case Node.list() do
+    available_nodes = Node.list()
+    dbg("[BALANCER] available_nodes: #{inspect(available_nodes)}")
+
+    case available_nodes do
       [] ->
         {:reply, Node.self(), counter + 1}
 

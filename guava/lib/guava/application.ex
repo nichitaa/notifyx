@@ -30,12 +30,37 @@ defmodule Guava.Application do
     :ok
   end
 
-  # libcluster topologies
+  # libcluster topologies (different for docker & local)
   defp topologies() do
+    case Mix.env() do
+      :prod ->
+        dbg("will use Epmd (:prod) topologies")
+        prod_epmd_topologies()
+
+      _ ->
+        dbg("will use Gossip topologies")
+        gossip_topologies()
+    end
+  end
+
+  defp gossip_topologies do
     [
-      background_job: [
-        # Finds and connects to new nodes on its own
+      guava: [
         strategy: Cluster.Strategy.Gossip
+      ]
+    ]
+  end
+
+  defp prod_epmd_topologies do
+    [
+      guava: [
+        strategy: Cluster.Strategy.Epmd,
+        config: [
+          hosts: [
+            # one hostname is enought, Epmd will pick up other Nodes for this base host
+            :"guava@node0.guava"
+          ]
+        ]
       ]
     ]
   end
