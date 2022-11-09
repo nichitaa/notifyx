@@ -17,6 +17,7 @@
 * [`React/TS`](https://reactjs.org/) (client test application)
 * [`Prometheus`](https://prometheus.io/docs/introduction/overview/) (for metrics scraping)
 * [`Grafana`](https://grafana.com/docs/) (for visual metrics monitoring)
+* [`Docker`](https://docs.docker.com/compose/) (`docker-compose` for CI/deployment)
 
 #### _[Naming is hard](https://quotesondesign.com/phil-karlton/)_
 
@@ -95,17 +96,27 @@ Service Features:
 * RPC - Mailing service Nodes communicates via [`:erpc`](https://www.erlang.org/doc/man/erpc.html)
 * Concurrent task limit - `DynamicSupervisor` for mail workers has a `max_children`
   configured <sup>[link](./guava/config/config.exs)</sup>
+* Grafana / Prometheus metrics collection & monitoring
+* 2 phase commit for create notification action (`kiwi`)
+  * `POST` - `/api/notifications` with `is_2pc_locked: true` (prepare)
+  * `POST` - `/api/notifications/commit_2pc` with `request_id` from prepare step (commit)
+  * `DELETE` - `/api/notifications/rollback_2pc` with `request_id` from prepare step (rollback)
 
 Gateway Features:
 
 * Load Balancing - Round Robin
 * Outbound WS API
 * Circuit breaker <sup>[link](./acai/lib/acai/circuit_breaker.ex)</sup>
+* Grafana / Prometheus metrics collection & monitoring
+* 2 phase commit integration for services that supports it
+  * 1 phase - prepare data request -> success/error
+  * 2 phase - commit/rollback request -> ack/nack
 
 The Cache:
 
 * Implemented in Auth Service
 * Implemented in Persist Service
+* Replicated cache (across all Auth service nodes - `durian` nodes)
 
 Other:
 
