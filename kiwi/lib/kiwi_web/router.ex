@@ -21,7 +21,9 @@ defmodule KiwiWeb.Router do
     delete "/subscribers/:topic_id", TopicSubscriberController, :unsubscribe
 
     # Notifications
-    post "/notifications", NotificationController, :create
+    post "/notifications", NotificationController, :create # regular or prepare_2pc step
+    post "/notifications/commit_2pc", NotificationController, :commit_2pc
+    delete "/notifications/rollback_2pc", NotificationController, :rollback_2pc
     get "/notifications", NotificationController, :get_own_notifications
     post "/notifications/:id/seen", NotificationController, :update_status_to_seen
   end

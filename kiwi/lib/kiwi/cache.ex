@@ -6,6 +6,19 @@ defmodule Kiwi.Cache do
   alias Kiwi.Persist
   alias Kiwi.Persist.Topic
 
+  def save_prepare_2pc_notification(request_id, notification_id) do
+    put(request_id, notification_id)
+  end
+
+  def get_2pc_notification(request_id) do
+    case get(request_id) do
+      nil -> not_in_cache_response()
+      notification_id -> {:ok, notification_id}
+    end
+  end
+
+  def delete_2pc_notification(request_id), do: delete(request_id)
+
   # Topic (:id)
 
   def add_topic(topic) do

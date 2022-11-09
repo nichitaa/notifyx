@@ -88,6 +88,52 @@ defmodule Kiwi.Persist do
     |> Repo.insert()
   end
 
+  def commit_2pc(from_user_id, notification_id) do
+    update_result =
+      get_2pc_query(from_user_id, notification_id)
+      |> update(set: [is_2pc_locked: false])
+      |> Repo.update_all([])
+
+    case update_result do
+      {1, nil} -> {:ok, :commited}
+      _ -> {:error, :commit_error}
+    end
+  end
+
+  def rollback_2pc(from_user_id, notification_id) do
+    can_delete_query =
+      get_2pc_query(from_user_id, notification_id)
+      |> Repo.one([])
+
+    case can_delete_query do
+      nil ->
+        {:error, :rollback_error}
+
+      _ ->
+        # delete relations entity first
+        from(un in UserNotification,
+          where: un.notification_id == ^notification_id
+        )
+        |> Repo.delete_all([])
+
+        delete_notification_result =
+          get_2pc_query(from_user_id, notification_id)
+          |> Repo.delete_all([])
+
+        case delete_notification_result do
+          {1, nil} -> {:ok, :rollback}
+          _ -> {:error, :rollback_error}
+        end
+    end
+  end
+
+  def get_2pc_query(from_user_id, notification_id) do
+    from(n in Notification,
+      where:
+        n.id == ^notification_id and n.is_2pc_locked == true and n.from_user_id == ^from_user_id
+    )
+  end
+
   @doc """
   Works with transactions, it sequentially performs some preconditions (validations)
   and updates the `users_notifications` entity
@@ -183,8 +229,12 @@ defmodule Kiwi.Persist do
 
     UserNotification
     |> where([un], un.to_user_id == ^user_id)
-    |> join(:left, [un], n in Notification, on: un.notification_id == n.id, as: :notification)
-    |> join(:left, [un, n], t in Topic, on: n.topic_id == t.id, as: :topic)
+    # only Notifications that were committed after 2pc (no currently locked)
+    |> join(:right, [un], n in Notification,
+      on: un.notification_id == n.id and n.is_2pc_locked == false,
+      as: :notification
+    )
+    |> join(:right, [un, n], t in Topic, on: n.topic_id == t.id, as: :topic)
     |> where(^dynamic_filters)
     |> select([un, n, t], %{
       notification_id: n.id,

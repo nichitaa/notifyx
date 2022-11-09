@@ -11,6 +11,7 @@ defmodule Kiwi.Persist.Notification do
   schema "notifications" do
     field :from_user_id, :binary_id
     field :message, :string
+    field :is_2pc_locked, :boolean, default: false
 
     belongs_to(:topic, Topic)
     has_many(:users_notifications, UserNotification)
@@ -21,7 +22,7 @@ defmodule Kiwi.Persist.Notification do
   @doc false
   def changeset(notification, attrs) do
     notification
-    |> cast(attrs, [:from_user_id, :message, :topic_id])
+    |> cast(attrs, [:from_user_id, :message, :topic_id, :is_2pc_locked])
     |> validate_required([:from_user_id, :message, :topic_id])
   end
 end

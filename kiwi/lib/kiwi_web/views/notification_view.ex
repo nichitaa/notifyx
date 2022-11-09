@@ -7,6 +7,10 @@ defmodule KiwiWeb.NotificationView do
     success_response(data)
   end
 
+  def render("2pc_prepare_success.json", %{request_id: request_id}) do
+    success_response(%{request_id: request_id, message: "[2pc] prepared"})
+  end
+
   def render("notification_error.json", %{error: error}) do
     error_response(error)
   end
