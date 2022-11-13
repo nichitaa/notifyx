@@ -26,6 +26,7 @@ Each service / component will be in a dedicated folder ⚙
 * [`acai`](./acai) - Gateway with Phoenix Channels (`port: 4000`)
 * [`durian`](./durian) - Auth Service (`port: 5000`)
 * [`kiwi`](./kiwi) - Persistent Service (`port: 6000`)
+* [`counter_2pc`](./counter_2pc) - Users notifications counter (with 2 phase commit support) (`port: 2000`)
 * [`client`](./client) - Client test application (`port: 3333`)
 * [`guava`](./guava) - Mailing Service (`port: 7000`)
 * [`julik`](./julik) - Service Discovery (`port: 8000`)
@@ -52,6 +53,7 @@ docker volume rm $(docker volume ls -q)
 #### Manual setup ⚙
 
 [Start Grafana & Prometheus Stack as separate Docker containers](./monitoring/README.md)
+
 ```shell
 cd monitoring\local
 docker compose up --build
@@ -101,9 +103,9 @@ Service Features:
   configured <sup>[link](./guava/config/config.exs)</sup>
 * Grafana / Prometheus metrics collection & monitoring
 * 2 phase commit for create notification action (`kiwi` & `counter_2pc`)
-  * `POST` - `/api/notifications` with `is_2pc_locked: true` (prepare)
-  * `POST` - `/api/notifications/commit_2pc` with `request_id` from prepare step (commit)
-  * `DELETE` - `/api/notifications/rollback_2pc` with `request_id` from prepare step (rollback)
+    * `POST` - `/api/notifications` with `is_2pc_locked: true` (prepare)
+    * `POST` - `/api/notifications/commit_2pc` with `request_id` from prepare step (commit)
+    * `DELETE` - `/api/notifications/rollback_2pc` with `request_id` from prepare step (rollback)
 
 Gateway Features:
 
@@ -112,8 +114,8 @@ Gateway Features:
 * Circuit breaker <sup>[link](./acai/lib/acai/circuit_breaker.ex)</sup>
 * Grafana / Prometheus metrics collection & monitoring
 * 2 phase commit integration for services that supports it
-  * 1 phase - prepare data request -> success/error
-  * 2 phase - commit/rollback request -> ack/nack
+    * 1 phase - prepare data request -> success/error
+    * 2 phase - commit/rollback request -> ack/nack
 
 The Cache:
 
@@ -128,22 +130,27 @@ Other:
 #### _Some 2 Phase commit implementation notes_
 
 Services should implement several routes for it:
+
 * `POST` - `/api/prepare_2pc`
 * `POST` - `/api/commit_2pc`
 * `DELETE` - `/api/rollback_2pc`
 
 After successful `prepare` request it might return an identifier for the created transaction (mutation) or ack/nack:
+
 * `kiwi` - will return `request_id` (later used to rollback/commit transaction)
 * `counter_2pc` - just ack (`user_id` from request is enough to rollback/commit transaction)
 
-Actually the terminology of `commit/rollback transaction` should be better called `save/discard data actions`. As there is no
-real transaction reference that could be later used to commit/rollback it, the data is still persisted somewhere and there
+Actually the terminology of `commit/rollback transaction` should be better called `save/discard data actions`. As there
+is no
+real transaction reference that could be later used to commit/rollback it, the data is still persisted somewhere and
+there
 should exist a clean-up/save handlers for each of the atomic change
 
 #### The [`Manager2PC`](./acai/lib/services/manager_2pc.ex)
 
 Is the generic implementation for handling first and second phase from 2 phase-commit requests.
 The prepare phase is domain specific, meaning that it should be clearly defined all prepare tasks handlers like:
+
 ```elixir
 prepare_tasks = [
   Task.async(fn ->
@@ -154,15 +161,21 @@ prepare_tasks = [
   end)
 ]
 ```
+
 `init_2pc` function should return a tuple of:
+
 ```elixir
 {:ok, commit_fn, rollback_fn}
 {:error, data}
 ```
-`commit_fn` and `rollback_fn` are as well domain specific so those should be handled by the dedicated services separately.
 
-The second phase is executing either `commit_fn` or `rollback_fn` handlers, based on response from prepare (first) phase.
-A big disadvantage of 2 phase commit approach is that there is no clear definition of what should happen when a task from second phase
+`commit_fn` and `rollback_fn` are as well domain specific so those should be handled by the dedicated services
+separately.
+
+The second phase is executing either `commit_fn` or `rollback_fn` handlers, based on response from prepare (first)
+phase.
+A big disadvantage of 2 phase commit approach is that there is no clear definition of what should happen when a task
+from second phase
 fails (either to commit or rollback).
 
 Note that tasks from both phases are done asynchronously with `Task.async/1` and awaited with `Task.await_many/2`.
