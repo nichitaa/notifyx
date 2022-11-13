@@ -33,16 +33,32 @@ defmodule AcaiWeb.NotificationChannel do
     from = socket.assigns.user.email
     notification = Notification.new(message, from, to)
 
-    response =
-      case Services.Persist.create_notification(socket, notification) do
-        {:error, error} -> error
-        {:ok, data} -> data
+    response_2pc = Services.Manager2Pc.create_notification_2pc(socket, notification)
+
+    reply_ws =
+      case response_2pc do
+        {:commit, true} ->
+          broadcast!(socket, "new_notification", notification)
+
+          %{
+            success: true,
+            message: "successfully delivered notification via 2 phase commit approach"
+          }
+
+        {:commit, false} ->
+          %{
+            success: false,
+            error: "commit error"
+          }
+
+        {:rollback, bool} ->
+          %{
+            success: false,
+            error: "rollback all transactions (success=#{inspect(bool)})"
+          }
       end
 
-    broadcast!(socket, "new_notification", notification)
-    # the client in UI could have a `loading` state
-    # with `{:noreply, socket}` could not block the traffic
-    {:reply, {:ok, response}, socket}
+    {:reply, {:ok, reply_ws}, socket}
   end
 
   def handle_in("own_notifications_for_topic", _payload, socket) do

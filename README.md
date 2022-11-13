@@ -81,6 +81,9 @@ cd guava && set PORT=7003&& iex --no-pry --sname mail_node4 -S mix phx.server
 cd nodex && npm run dev:pm2
 # to stop: npm run del:pm2
 
+# 7. Start Counter 2 Phase commit service (counter_2pc)
+cd counter_2pc && set PORT=2000& iex --no-pry --sname counter_2pc -S mix phx.server
+
 # 7. Start Client application (client)
 cd client && npm run dev
 ```
@@ -97,7 +100,7 @@ Service Features:
 * Concurrent task limit - `DynamicSupervisor` for mail workers has a `max_children`
   configured <sup>[link](./guava/config/config.exs)</sup>
 * Grafana / Prometheus metrics collection & monitoring
-* 2 phase commit for create notification action (`kiwi`)
+* 2 phase commit for create notification action (`kiwi` & `counter_2pc`)
   * `POST` - `/api/notifications` with `is_2pc_locked: true` (prepare)
   * `POST` - `/api/notifications/commit_2pc` with `request_id` from prepare step (commit)
   * `DELETE` - `/api/notifications/rollback_2pc` with `request_id` from prepare step (rollback)
@@ -121,6 +124,48 @@ The Cache:
 Other:
 
 * Real-time events/notifications via WS API and Phoenix Channels
+
+#### _Some 2 Phase commit implementation notes_
+
+Services should implement several routes for it:
+* `POST` - `/api/prepare_2pc`
+* `POST` - `/api/commit_2pc`
+* `DELETE` - `/api/rollback_2pc`
+
+After successful `prepare` request it might return an identifier for the created transaction (mutation) or ack/nack:
+* `kiwi` - will return `request_id` (later used to rollback/commit transaction)
+* `counter_2pc` - just ack (`user_id` from request is enough to rollback/commit transaction)
+
+Actually the terminology of `commit/rollback transaction` should be better called `save/discard data actions`. As there is no
+real transaction reference that could be later used to commit/rollback it, the data is still persisted somewhere and there
+should exist a clean-up/save handlers for each of the atomic change
+
+#### The [`Manager2PC`](./acai/lib/services/manager_2pc.ex)
+
+Is the generic implementation for handling first and second phase from 2 phase-commit requests.
+The prepare phase is domain specific, meaning that it should be clearly defined all prepare tasks handlers like:
+```elixir
+prepare_tasks = [
+  Task.async(fn ->
+    Services.Persist.init_2pc(socket, notification)
+  end),
+  Task.async(fn ->
+    Services.Counter.init_2pc(socket)
+  end)
+]
+```
+`init_2pc` function should return a tuple of:
+```elixir
+{:ok, commit_fn, rollback_fn}
+{:error, data}
+```
+`commit_fn` and `rollback_fn` are as well domain specific so those should be handled by the dedicated services separately.
+
+The second phase is executing either `commit_fn` or `rollback_fn` handlers, based on response from prepare (first) phase.
+A big disadvantage of 2 phase commit approach is that there is no clear definition of what should happen when a task from second phase
+fails (either to commit or rollback).
+
+Note that tasks from both phases are done asynchronously with `Task.async/1` and awaited with `Task.await_many/2`.
 
 #### _What should be implemented (business-wise) ?_
 

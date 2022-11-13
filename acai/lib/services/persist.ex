@@ -8,6 +8,8 @@ defmodule Acai.Services.Persist do
   @subscribe_to_topic_endpoint "/api/subscribers"
   @create_notification_endpoint "/api/notifications"
   @get_notifications_endpoint "/api/notifications"
+  @commit_2pc_notification_endpoint "/api/notifications/commit_2pc"
+  @rollback_2pc_notification_endpoint "/api/notifications/rollback_2pc"
 
   ## Topics
 
@@ -95,20 +97,74 @@ defmodule Acai.Services.Persist do
     end
   end
 
+  @doc """
+  Used by `Acai.Services.Manager2PC`  
+  Returns {:ok, commit_function, rollback_function}
+          {:error, error}
+  """
+  def init_2pc(socket, notification) do
+    response = prepare_2pc_notification(socket, notification)
+
+    case response do
+      {:ok, request_id} ->
+        commit_fn = fn -> commit_2pc_notification(socket, request_id) end
+        rollback_fn = fn -> rollback_2pc_notification(socket, request_id) end
+        {:ok, commit_fn, rollback_fn}
+
+      error ->
+        error
+    end
+  end
+
   ## Notifications
 
-  def create_notification(socket, %Notification{message: message, to: to}) do
+  def prepare_2pc_notification(socket, %Notification{message: message, to: to}) do
     topic_id = socket.assigns.topic_id
     headers = get_headers(socket)
     options = get_options()
-    body = Jason.encode!(%{message: message, to_users: to, topic_id: topic_id})
+
+    body =
+      Jason.encode!(%{message: message, to_users: to, topic_id: topic_id, is_2pc_locked: true})
 
     with {:ok, base_url} <- base_url(),
          create_notification_url <- base_url <> @create_notification_endpoint,
          response <- HTTPoison.post(create_notification_url, body, headers, options),
          {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- response,
-         %{"success" => true, "data" => data} <- Jason.decode!(body) do
-      {:ok, data}
+         %{"success" => true, "data" => %{"request_id" => request_id}} <- Jason.decode!(body) do
+      dbg(request_id)
+      {:ok, request_id}
+    else
+      error_data -> {:error, error_data}
+    end
+  end
+
+  def commit_2pc_notification(socket, request_id) do
+    headers = get_headers(socket)
+    options = get_options()
+    body = Jason.encode!(%{request_id: request_id})
+
+    with {:ok, base_url} <- base_url(),
+         commit_2pc_notification_url <- base_url <> @commit_2pc_notification_endpoint,
+         response <- HTTPoison.post(commit_2pc_notification_url, body, headers, options),
+         {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- response,
+         %{"success" => true} <- Jason.decode!(body) do
+      {:ok, nil}
+    else
+      error_data -> {:error, error_data}
+    end
+  end
+
+  def rollback_2pc_notification(socket, request_id) do
+    headers = get_headers(socket)
+    options = get_options()
+
+    with {:ok, base_url} <- base_url(),
+         rollback_2pc_notification_url <-
+           base_url <> @rollback_2pc_notification_endpoint <> "/#{request_id}",
+         response <- HTTPoison.delete(rollback_2pc_notification_url, headers, options),
+         {:ok, %HTTPoison.Response{status_code: 200, body: body}} <- response,
+         %{"success" => true} <- Jason.decode!(body) do
+      {:ok, nil}
     else
       error_data -> {:error, error_data}
     end

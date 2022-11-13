@@ -179,8 +179,6 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     restart: always
-  #    volumes:
-  #      - ./docker-volumes/postgres-data:/var/lib/postgresql/data
 
   # Kiwi (Persist Service)
   kiwi:
@@ -210,5 +208,31 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     restart: always
-#    volumes:
-#      - ./docker-volumes/postgres-data:/var/lib/postgresql/data
+
+  counter_2pc:
+    container_name: counter_2pc
+    build:
+      context: ./counter_2pc
+      dockerfile: Dockerfile
+    ports:
+      - '2000:2000'
+    environment:
+      PORT: 2000
+      MIX_ENV: prod
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGDATABASE: counter_2pc_prod
+      PGHOST: counter_2pc_postgres
+      PGPORT: 5432
+    depends_on:
+      - counter_2pc_postgres
+      - julik
+
+  # Kiwi Postgres DB (for Persist Service)
+  counter_2pc_postgres:
+    container_name: counter_2pc_postgres
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    restart: always
