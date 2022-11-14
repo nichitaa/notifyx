@@ -36,6 +36,8 @@ Each service / component will be in a dedicated folder ⚙
 
 ### Dev Notes 👀
 
+![general-architecture-diagram](./docs/images/general-arhitecture.png)
+
 #### Docker setup 🐳
 
 ```shell
@@ -187,7 +189,3 @@ Note that tasks from both phases are done asynchronously with `Task.async/1` and
 * Service for persist and keep track of the broadcasted notifications, topics, subscriptions
 * Service for sending notifications via email
 * Service for generating PNG avatars
-
-[General architecture diagram](https://lucid.app/lucidchart/82c957a4-0db9-49d8-9f8b-dfd44882ce5e/edit?viewport_loc=199%2C-79%2C1993%2C784%2C0_0&invitationId=inv_80e2990b-1b1a-483e-8af2-38e5f92b85af#)
-
-
